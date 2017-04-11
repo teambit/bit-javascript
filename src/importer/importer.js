@@ -7,7 +7,7 @@ import modelOnFs from './model-on-fs';
 // import locateConsumer from '../consumer/locate-consumer';
 import BitJson from '../bit-json';
 import { MODULE_NAME, MODULES_DIR, COMPONENTS_DIRNAME } from '../constants';
-import * as componentsMap from './components-map';
+import componentsMap from './components-map';
 import * as createLinks from './create-links';
 
  // TODO - inject bitJson instead of load it
@@ -53,7 +53,7 @@ export default (componentIds: string[]) => {
     const componentDependenciesArr = R.unnest(responses.map(R.prop('payload')));
     return modelOnFs(componentDependenciesArr, targetComponentsDir);
   })
-  .then(() => componentsMap.build(targetComponentsDir))
+  .then(() => componentsMap(targetComponentsDir))
   .then(map => createLinks.dependencies(targetComponentsDir, map))
   .then(map => createLinks.publicApi(targetModuleDir, map, projectBitJson));
 };

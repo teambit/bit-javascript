@@ -9,7 +9,7 @@ import {
   DEFAULT_DIST_DIRNAME
 }  from '../constants';
 
-export function build(targetComponentsDir: string): Promise<Object> {
+export default function build(targetComponentsDir: string): Promise<Object> {
   return new Promise((resolve, reject) => {
     const componentsMap = {};
     glob('*/*/*/*', { cwd: targetComponentsDir }, (err, files) => {
