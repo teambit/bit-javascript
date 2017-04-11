@@ -18,7 +18,7 @@ export function build(targetComponentsDir: string): Promise<Object> {
           dependencies.push(dependency + VERSION_DELIMITER + bitJson.dependencies[dependency]);
         }
         componentsMap[id] = {
-          loc: `./${dir}`,
+          loc: dir,
           file: bitJson.compiler ? path.join('dist', 'dist.js') : bitJson.impl,
           dependencies
         }

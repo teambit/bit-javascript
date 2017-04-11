@@ -8,6 +8,7 @@ import modelOnFs from './model-on-fs';
 import BitJson from '../bit-json';
 import { MODULE_NAME, MODULES_DIR, COMPONENTS_DIRNAME } from '../constants';
 import * as componentsMap from './components-map';
+import fs from 'fs-extra';
 
  // TODO - inject bitJson instead of load it
 export const readIdsFromBitJson = (consumerPath: string) =>
@@ -35,9 +36,33 @@ Promise<string[]> {
   });
 }
 
+function writeFile(file, content) {
+  return new Promise((resolve, reject) => {
+    fs.outputFile(file, content, (err) => {
+      if (err) return reject(err);
+      resolve();
+    })
+  });
+}
+
 export const createDependencyLinks = (targetComponentsDir, map) => {
-  // TODO - implement
-  return Promise.resolve();
+  return new Promise((resolve, reject) => {
+    const promises = [];
+    for (const component in map) {
+      if (!map[component].dependencies) continue;
+      const targetModuleDir = path.join(targetComponentsDir, map[component].loc, MODULES_DIR, MODULE_NAME);
+      map[component].dependencies.forEach(dependency => {
+        const [box, name] = map[dependency].loc.split(path.sep);
+        const targetFile = path.join(box, name, 'index.js');
+        const targetDir = path.join(targetModuleDir, targetFile);
+        const relativeComponentsDir = path.join('..', '..', '..', '..', '..', '..', '..', '..');
+        const dependencyDir = path.join(relativeComponentsDir, map[dependency].loc, map[dependency].file);
+        const template = `module.exports = require('${dependencyDir}');`;
+        promises.push(writeFile(targetDir, template));
+      });
+    }
+    Promise.all(promises).then(() => resolve(map)).catch(reject);
+  });
 };
 
 export const createPublicApi = (targetModuleDir, map, projectBitJson) => {
