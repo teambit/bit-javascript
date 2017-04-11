@@ -2,7 +2,12 @@
 import glob from 'glob';
 import path from 'path';
 import BitJson from '../bit-json';
-import { VERSION_DELIMITER, ID_DELIMITER }  from '../constants';
+import {
+  VERSION_DELIMITER,
+  ID_DELIMITER,
+  DEFAULT_BUNDLE_FILENAME,
+  DEFAULT_DIST_DIRNAME
+}  from '../constants';
 
 export function build(targetComponentsDir: string): Promise<Object> {
   return new Promise((resolve, reject) => {
@@ -19,7 +24,7 @@ export function build(targetComponentsDir: string): Promise<Object> {
         }
         componentsMap[id] = {
           loc: dir,
-          file: bitJson.compiler ? path.join('dist', 'dist.js') : bitJson.impl,
+          file: bitJson.compiler ? path.join(DEFAULT_DIST_DIRNAME, DEFAULT_BUNDLE_FILENAME) : bitJson.impl,
           dependencies
         }
       });
