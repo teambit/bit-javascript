@@ -43,17 +43,18 @@ export default (componentIds: string[]) => {
   const targetModuleDir = path.join(projectRoot, MODULES_DIR, MODULE_NAME);
   const targetComponentsDir = path.join(projectRoot, COMPONENTS_DIRNAME);
   const projectBitJson = BitJson.load(projectRoot);
+  let components;
 
   return getIdsFromBitJsonIfNeeded(componentIds, projectRoot)
   .then((ids) => { // eslint-disable-line
-    // return importComponents(ids);
-    return Promise.resolve(responseMock); // mock - replace to the real importer
+    return importComponents(ids);
+    // return Promise.resolve(responseMock); // mock - replace to the real importer
   })
   .then((responses) => {
-    const componentDependenciesArr = R.unnest(responses.map(R.prop('payload')));
-    return modelOnFs(componentDependenciesArr, targetComponentsDir);
+    components = R.unnest(responses.map(R.prop('payload')));
+    return modelOnFs(components, targetComponentsDir);
   })
   .then(() => componentsMap(targetComponentsDir))
   .then(map => createLinks.dependencies(targetComponentsDir, map))
-  .then(map => createLinks.publicApi(targetModuleDir, map, projectBitJson));
+  .then(map => createLinks.publicApi(targetModuleDir, map, components));
 };

@@ -1,8 +1,12 @@
 import fs from 'fs-extra';
 import path from 'path';
-import { MODULE_NAME, MODULES_DIR, COMPONENTS_DIRNAME, VERSION_DELIMITER } from '../constants';
+import { MODULE_NAME, MODULES_DIR, COMPONENTS_DIRNAME, VERSION_DELIMITER, ID_DELIMITER } from '../constants';
 
 const linkTemplate = (link) => `module.exports = require('${link}');`;
+const componentToString = (component) => {
+  return component.scope + ID_DELIMITER + component.box + ID_DELIMITER + component.name
+    + VERSION_DELIMITER + component.version;
+};
 
 function writeFile(file, content) {
   return new Promise((resolve, reject) => {
@@ -33,11 +37,10 @@ export function dependencies(targetComponentsDir, map) {
   });
 }
 
-export function publicApi(targetModuleDir, map, projectBitJson) {
-  return Promise.all(Object.keys(projectBitJson.dependencies).map(id => {
-    const [, box, name] = id.split(path.sep);
-    const targetDir = path.join(targetModuleDir, box, name, 'index.js');
-    const mapId = id + VERSION_DELIMITER + projectBitJson.dependencies[id];
+export function publicApi(targetModuleDir, map, components) {
+  return Promise.all(components.map(({ component }) => {
+    const targetDir = path.join(targetModuleDir, component.box, component.name, 'index.js');
+    const mapId = componentToString(component);
     const relativeComponentsDir = path.join('..', '..', '..', '..', COMPONENTS_DIRNAME);
     const dependencyDir = path.join(relativeComponentsDir, map[mapId].loc, map[mapId].file);
     const template = linkTemplate(dependencyDir);
