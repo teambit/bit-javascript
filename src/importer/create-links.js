@@ -2,6 +2,8 @@ import fs from 'fs-extra';
 import path from 'path';
 import { MODULE_NAME, MODULES_DIR, COMPONENTS_DIRNAME, VERSION_DELIMITER } from '../constants';
 
+const linkTemplate = (link) => `module.exports = require('${link}');`;
+
 function writeFile(file, content) {
   return new Promise((resolve, reject) => {
     fs.outputFile(file, content, (err) => {
@@ -23,7 +25,7 @@ export function dependencies(targetComponentsDir, map) {
         const targetDir = path.join(targetModuleDir, targetFile);
         const relativeComponentsDir = path.join('..', '..', '..', '..', '..', '..', '..', '..');
         const dependencyDir = path.join(relativeComponentsDir, map[dependency].loc, map[dependency].file);
-        const template = `module.exports = require('${dependencyDir}');`;
+        const template = linkTemplate(dependencyDir);
         promises.push(writeFile(targetDir, template));
       });
     }
@@ -38,7 +40,7 @@ export function publicApi(targetModuleDir, map, projectBitJson) {
     const mapId = id + VERSION_DELIMITER + projectBitJson.dependencies[id];
     const relativeComponentsDir = path.join('..', '..', '..', '..', COMPONENTS_DIRNAME);
     const dependencyDir = path.join(relativeComponentsDir, map[mapId].loc, map[mapId].file);
-    const template = `module.exports = require('${dependencyDir}');`;
+    const template = linkTemplate(dependencyDir);
     return writeFile(targetDir, template);
   }));
 }
