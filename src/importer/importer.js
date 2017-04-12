@@ -38,10 +38,9 @@ Promise<string[]> {
 }
 
 function saveIdsToBitJsonIfNeeded(componentIds: string[], components: Array<Object>,
-  projectRoot: string): Promise<*> {
+  projectBitJson: BitJson, projectRoot: string): Promise<*> {
   return new Promise((resolve, reject) => {
     if (!componentIds || R.isEmpty(componentIds)) return resolve();
-    const projectBitJson = BitJson.load(projectRoot);
     let bitJsonHasChanged = false;
     componentIds.forEach((componentId) => {
       const objId = parseBitFullId({ id: componentId });
@@ -49,11 +48,13 @@ function saveIdsToBitJsonIfNeeded(componentIds: string[], components: Array<Obje
       if (!projectBitJson.dependencies[strId]) {
         const component = components.find(item => item.component.scope === objId.scope
         && item.component.box === objId.box && item.component.name === objId.name);
+        /* eslint no-param-reassign: ["error", { "props": false }] */
         projectBitJson.dependencies[strId] = component.component.version;
         bitJsonHasChanged = true;
       }
     });
     if (!bitJsonHasChanged) return resolve();
+    projectBitJson.validateDependencies();
     return projectBitJson.write(projectRoot).then(resolve).catch(reject);
   });
 }
@@ -62,7 +63,8 @@ export default (componentIds: string[]) => {
   const projectRoot = process.cwd();
   const targetModuleDir = path.join(projectRoot, MODULES_DIR, MODULE_NAME);
   const targetComponentsDir = path.join(projectRoot, COMPONENTS_DIRNAME);
-  // const projectBitJson = BitJson.load(projectRoot);
+  const projectBitJson = BitJson.load(projectRoot);
+  projectBitJson.validateDependencies();
   let components;
 
   return getIdsFromBitJsonIfNeeded(componentIds, projectRoot)
@@ -74,7 +76,7 @@ export default (componentIds: string[]) => {
     components = R.unnest(responses.map(R.prop('payload')));
     return modelOnFs(components, targetComponentsDir);
   })
-  .then(() => saveIdsToBitJsonIfNeeded(componentIds, components, projectRoot))
+  .then(() => saveIdsToBitJsonIfNeeded(componentIds, components, projectBitJson, projectRoot))
   .then(() => componentsMap(targetComponentsDir))
   .then(map => createLinks.dependencies(targetComponentsDir, map))
   .then(map => createLinks.publicApi(targetModuleDir, map, components));
