@@ -4,6 +4,7 @@ import importComponents from 'bit-scope-client';
 import path from 'path';
 // import responseMock from './response-mock';
 import modelOnFs from './model-on-fs';
+import { componentDependencies } from './model-on-fs';
 // import locateConsumer from '../consumer/locate-consumer';
 import BitJson from '../bit-json';
 import { MODULE_NAME, MODULES_DIR, COMPONENTS_DIRNAME, ID_DELIMITER } from '../constants';
@@ -37,7 +38,7 @@ Promise<string[]> {
   });
 }
 
-function saveIdsToBitJsonIfNeeded(componentIds: string[], components: Array<Object>,
+function saveIdsToBitJsonIfNeeded(componentIds: string[], components: componentDependencies[],
   projectBitJson: BitJson, projectRoot: string): Promise<*> {
   return new Promise((resolve, reject) => {
     if (!componentIds || R.isEmpty(componentIds)) return resolve();
