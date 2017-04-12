@@ -79,5 +79,5 @@ export default (componentIds: string[]) => {
   .then(() => saveIdsToBitJsonIfNeeded(componentIds, components, projectBitJson, projectRoot))
   .then(() => componentsMap(targetComponentsDir))
   .then(map => createLinks.dependencies(targetComponentsDir, map))
-  .then(map => createLinks.publicApi(targetModuleDir, map, components));
+  .then(map => createLinks.publicApi(targetModuleDir, map, projectBitJson));
 };
