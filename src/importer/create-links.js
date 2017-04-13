@@ -3,7 +3,12 @@ import fs from 'fs-extra';
 import path from 'path';
 import R from 'ramda';
 import BitJson from '../bit-json';
-import { MODULE_NAME, MODULES_DIR, COMPONENTS_DIRNAME, VERSION_DELIMITER, ID_DELIMITER } from '../constants';
+import { MODULE_NAME,
+  MODULES_DIR,
+  COMPONENTS_DIRNAME,
+  VERSION_DELIMITER,
+  ID_DELIMITER,
+  INLINE_COMPONENTS_DIRNAME } from '../constants';
 
 const linkTemplate = (link: string): string => `module.exports = require('${link}');`;
 
@@ -67,6 +72,16 @@ Promise<Object> {
     });
     Promise.all(promises).then(() => resolve(map)).catch(reject);
   });
+}
+
+export function publicApiForInlineComponents(targetModuleDir: string, inlineMap: Object) {
+  return Promise.all(Object.keys(inlineMap).map((id) => {
+    const [box, name] = id.split(path.sep);
+    const targetDir = path.join(targetModuleDir, box, name, 'index.js');
+    const relativeComponentsDir = path.join(...Array(4).fill('..'), INLINE_COMPONENTS_DIRNAME);
+    const dependencyDir = path.join(relativeComponentsDir, inlineMap[id].loc, inlineMap[id].file);
+    return writeFile(targetDir, linkTemplate(dependencyDir));
+  }));
 }
 
 export function publicApi(targetModuleDir: string, map: Object, projectBitJson: BitJson):
