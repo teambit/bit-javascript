@@ -60,9 +60,18 @@ function saveIdsToBitJsonIfNeeded(componentIds: string[], components: componentD
   });
 }
 
-export default (componentIds: string[]) => {
+export function bind() {
   const projectRoot = process.cwd();
   const targetModuleDir = path.join(projectRoot, MODULES_DIR, MODULE_NAME);
+  const targetComponentsDir = path.join(projectRoot, COMPONENTS_DIRNAME);
+  const projectBitJson = BitJson.load(projectRoot);
+  return componentsMap(targetComponentsDir)
+    .then(map => createLinks.dependencies(targetComponentsDir, map))
+    .then(map => createLinks.publicApi(targetModuleDir, map, projectBitJson));
+}
+
+export default (componentIds: string[]) => {
+  const projectRoot = process.cwd();
   const targetComponentsDir = path.join(projectRoot, COMPONENTS_DIRNAME);
   const projectBitJson = BitJson.load(projectRoot);
   projectBitJson.validateDependencies();
@@ -78,7 +87,5 @@ export default (componentIds: string[]) => {
     return modelOnFs(components, targetComponentsDir);
   })
   .then(() => saveIdsToBitJsonIfNeeded(componentIds, components, projectBitJson, projectRoot))
-  .then(() => componentsMap(targetComponentsDir))
-  .then(map => createLinks.dependencies(targetComponentsDir, map))
-  .then(map => createLinks.publicApi(targetModuleDir, map, projectBitJson));
+  .then(bind);
 };
