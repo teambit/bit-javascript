@@ -60,7 +60,7 @@ Promise<*> {
       const targetDir = path.join(targetModuleDir, box, name, 'index.js');
       const mapId = id + VERSION_DELIMITER + projectBitJson.dependencies[id];
       const relativeComponentsDir = path.join(...Array(4).fill('..'), COMPONENTS_DIRNAME);
-      // TODO: what happens when a component is not on the FS.
+      if (!map[mapId]) return Promise.resolve(); // the file is in bit.json but not fetched yet
       const dependencyDir = path.join(relativeComponentsDir, map[mapId].loc, map[mapId].file);
       return writeFile(targetDir, linkTemplate(dependencyDir));
     })));
