@@ -12,6 +12,9 @@ import componentsMap from './components-map';
 import * as createLinks from './create-links';
 import parseBitFullId from '../bit-id/parse-bit-full-id';
 
+const projectRoot = process.cwd();
+const targetComponentsDir = path.join(projectRoot, COMPONENTS_DIRNAME);
+
  // TODO - inject bitJson instead of load it
 export const readIdsFromBitJson = (consumerPath: string) =>
   new Promise((resolve, reject) => {
@@ -61,18 +64,14 @@ function saveIdsToBitJsonIfNeeded(componentIds: string[], components: componentD
 }
 
 export function bind() {
-  const projectRoot = process.cwd();
   const targetModuleDir = path.join(projectRoot, MODULES_DIR, MODULE_NAME);
-  const targetComponentsDir = path.join(projectRoot, COMPONENTS_DIRNAME);
   const projectBitJson = BitJson.load(projectRoot);
   return componentsMap(targetComponentsDir)
-    .then(map => createLinks.dependencies(targetComponentsDir, map))
+    .then(map => createLinks.dependencies(targetComponentsDir, map, projectBitJson))
     .then(map => createLinks.publicApi(targetModuleDir, map, projectBitJson));
 }
 
 export default (componentIds: string[]) => {
-  const projectRoot = process.cwd();
-  const targetComponentsDir = path.join(projectRoot, COMPONENTS_DIRNAME);
   const projectBitJson = BitJson.load(projectRoot);
   projectBitJson.validateDependencies();
   let components;

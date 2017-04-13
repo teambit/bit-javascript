@@ -1,6 +1,7 @@
 // @flow
 import fs from 'fs-extra';
 import path from 'path';
+import R from 'ramda';
 import BitJson from '../bit-json';
 import { MODULE_NAME, MODULES_DIR, COMPONENTS_DIRNAME, VERSION_DELIMITER, ID_DELIMITER } from '../constants';
 
@@ -24,10 +25,35 @@ function remove(dir: string): Promise<*> {
   });
 }
 
-export function dependencies(targetComponentsDir: string, map: Object): Promise<Object> {
+function findAllDependenciesInComponentMap(componentsMap: Object, components: Array<string>,
+  dependenciesArr: Array<string> = []) {
+  components.forEach((component) => {
+    if (componentsMap[component] && componentsMap[component].dependencies.length) {
+      findAllDependenciesInComponentMap(
+        componentsMap,
+        componentsMap[component].dependencies,
+        dependenciesArr.concat(componentsMap[component].dependencies));
+    }
+  });
+  return dependenciesArr;
+}
+
+function filterNonReferencedComponents(componentsMap: Object, projectBitJson: BitJson):
+Array<string> {
+  const componentsOnFS = Object.keys(componentsMap);
+  const bitJsonComponents = Object.keys(projectBitJson.dependencies).map(id => id
+  + VERSION_DELIMITER + projectBitJson.dependencies[id]);
+  const components = componentsOnFS.filter(component => bitJsonComponents.includes(component));
+  const componentDependencies = findAllDependenciesInComponentMap(componentsMap, bitJsonComponents);
+  return R.uniq(components.concat(componentDependencies));
+}
+
+export function dependencies(targetComponentsDir: string, map: Object, projectBitJson: BitJson):
+Promise<Object> {
   return new Promise((resolve, reject) => {
     const promises = [];
-    Object.keys(map).forEach((component) => {
+    const components = filterNonReferencedComponents(map, projectBitJson);
+    components.forEach((component) => {
       const targetModuleDir = path.join(
         targetComponentsDir,
         map[component].loc,
