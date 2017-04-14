@@ -2,7 +2,7 @@
 import fs from 'fs-extra';
 import path from 'path';
 import R from 'ramda';
-import BitJson from 'bit-scope-client/dist/bit-json';
+import BitJson from 'bit-scope-client/bit-json';
 import { MODULE_NAME,
   MODULES_DIR,
   COMPONENTS_DIRNAME,
