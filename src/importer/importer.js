@@ -2,14 +2,13 @@
 import R from 'ramda';
 import importComponents from 'bit-scope-client';
 import path from 'path';
+import parseBitFullId from 'bit-scope-client/dist/bit-id/parse-bit-full-id';
+import BitJson from 'bit-scope-client/dist/bit-json';
 import responseMock from './response-mock';
-import { type componentDependencies } from './model-on-fs';
 // import locateConsumer from '../consumer/locate-consumer';
-import BitJson from '../bit-json';
 import { MODULE_NAME, MODULES_DIR, COMPONENTS_DIRNAME, INLINE_COMPONENTS_DIRNAME, ID_DELIMITER } from '../constants';
 import * as componentsMap from './components-map';
 import * as createLinks from './create-links';
-import parseBitFullId from '../bit-id/parse-bit-full-id';
 
 const projectRoot = process.cwd();
 const targetComponentsDir = path.join(projectRoot, COMPONENTS_DIRNAME);
@@ -40,7 +39,7 @@ Promise<string[]> {
   });
 }
 
-function saveIdsToBitJsonIfNeeded(componentIds: string[], components: componentDependencies[],
+function saveIdsToBitJsonIfNeeded(componentIds: string[], components: Object[],
   projectBitJson: BitJson): Promise<*> {
   return new Promise((resolve, reject) => {
     if (!componentIds || R.isEmpty(componentIds)) return resolve();
