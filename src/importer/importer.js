@@ -2,11 +2,10 @@
 import R from 'ramda';
 import { importComponents } from 'bit-scope-client';
 import path from 'path';
-import { parseBitFullId } from 'bit-scope-client/bit-id';
 import BitJson from 'bit-scope-client/bit-json';
 // import responseMock from './response-mock';
 // import locateConsumer from '../consumer/locate-consumer';
-import { MODULE_NAME, MODULES_DIR, COMPONENTS_DIRNAME, INLINE_COMPONENTS_DIRNAME, ID_DELIMITER } from '../constants';
+import { MODULE_NAME, MODULES_DIR, COMPONENTS_DIRNAME, INLINE_COMPONENTS_DIRNAME } from '../constants';
 import * as componentsMap from './components-map';
 import * as createLinks from './create-links';
 import watch from './watch';
@@ -40,33 +39,6 @@ Promise<string[]> {
   });
 }
 
-function saveIdsToBitJsonIfNeeded(componentIds: string[], components: Object[],
-  projectBitJson: BitJson): Promise<*> {
-  return new Promise((resolve, reject) => {
-    if (!componentIds || R.isEmpty(componentIds)) return resolve();
-    let bitJsonHasChanged = false;
-    componentIds.forEach((componentId) => {
-      const objId = parseBitFullId({ id: componentId });
-      const strId = objId.scope + ID_DELIMITER + objId.box + ID_DELIMITER + objId.name;
-      if (projectBitJson.dependencies && !projectBitJson.dependencies[strId]) {
-        const component = components.find(item => item.component.scope === objId.scope
-        && item.component.box === objId.box && item.component.name === objId.name);
-        /* eslint no-param-reassign: ["error", { "props": false }] */
-        projectBitJson.dependencies[strId] = component && component.component.version;
-        bitJsonHasChanged = true;
-      }
-    });
-    if (!bitJsonHasChanged) return resolve();
-    try {
-      projectBitJson.validateDependencies();
-    } catch (e) {
-      return reject(e);
-    }
-
-    return projectBitJson.write(projectRoot).then(resolve).catch(reject);
-  });
-}
-
 export function bindAction(): Promise<any> {
   const targetModuleDir = path.join(projectRoot, MODULES_DIR, MODULE_NAME);
   const targetInlineComponentsDir = path.join(projectRoot, INLINE_COMPONENTS_DIRNAME);
@@ -88,11 +60,9 @@ export function fetchAction(componentIds: string[]): Promise<any> {
 
   return getIdsFromBitJsonIfNeeded(componentIds, projectRoot)
   .then((ids) => { // eslint-disable-line
-    return importComponents(ids);
+    return importComponents(ids, true); // import and save to bitJson
     // return Promise.resolve(responseMock); // mock - replace to the real importer
-  })
-  .then(components => saveIdsToBitJsonIfNeeded(componentIds,
-    components, projectBitJson, projectRoot));
+  });
 }
 
 export function watchAction(): Promise<any> {
