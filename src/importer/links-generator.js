@@ -2,7 +2,9 @@
 import fs from 'fs-extra';
 import path from 'path';
 import R from 'ramda';
+import glob from 'glob';
 import BitJson from 'bit-scope-client/bit-json';
+import camelcase from 'camelcase';
 import { MODULE_NAME,
   MODULES_DIR,
   COMPONENTS_DIRNAME,
@@ -11,6 +13,10 @@ import { MODULE_NAME,
   INLINE_COMPONENTS_DIRNAME } from '../constants';
 
 const linkTemplate = (link: string): string => `module.exports = require('${link}');`;
+const boxTemplate = (name: string): string => `${camelcase(name)}: require('./${name}')`;
+const linksTemplate = (links: string[]): string => `module.exports = {
+  ${links.join(',\n  ')}
+};`;
 
 function writeFileP(file: string, content: string): Promise<*> {
   return new Promise((resolve, reject) => {
@@ -103,8 +109,38 @@ export function publicApiForInlineComponents(targetModuleDir: string, inlineMap:
   }));
 }
 
-export function publicApi(targetModuleDir: string, map: Object, projectBitJson: BitJson):
-Promise<*> {
+export function publicApiBoxLevel(targetModuleDir: string) {
+  return new Promise((resolve) => {
+    glob('*/*', { cwd: targetModuleDir }, (err, dirs) => {
+      if (!dirs.length) return resolve();
+      const boxMap = {};
+      dirs.forEach((dir) => {
+        const [box, name] = dir.split(path.sep);
+        if (boxMap[box]) boxMap[box].push(name);
+        else boxMap[box] = [name];
+      });
+
+      const writeAllFiles = [];
+      Object.keys(boxMap).forEach((box) => {
+        const links = boxMap[box].map(name => `${camelcase(name)}: require('./${name}')`);
+        const indexFile = path.join(targetModuleDir, box, 'index.js');
+        writeAllFiles.push(writeFileP(indexFile, linksTemplate(links)));
+      });
+
+      return Promise.all(writeAllFiles).then(() => resolve(Object.keys(boxMap)));
+    });
+  });
+}
+
+export function publicApiRootLevel(targetModuleDir: string, boxes: string[]) {
+  if (!boxes || !boxes.length) return Promise.resolve();
+  const links = boxes.map(box => boxTemplate(box));
+  const indexFile = path.join(targetModuleDir, 'index.js');
+  return writeFileP(indexFile, linksTemplate(links));
+}
+
+export function publicApiComponentLevel(targetModuleDir: string, map: Object,
+  projectBitJson: BitJson): Promise<*> {
   if (!projectBitJson.dependencies || R.isEmpty(projectBitJson.dependencies)) {
     return Promise.resolve();
   }
