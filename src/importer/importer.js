@@ -41,7 +41,7 @@ Promise<string[]> {
   });
 }
 
-export function bindAction(): Promise<any> {
+export function bindAction(component?: ?Object): Promise<any> {
   const targetModuleDir = path.join(projectRoot, MODULES_DIR, MODULE_NAME);
   const targetInlineComponentsDir = path.join(projectRoot, INLINE_COMPONENTS_DIRNAME);
   const projectBitJson = BitJson.load(projectRoot);
@@ -49,7 +49,8 @@ export function bindAction(): Promise<any> {
     .then(map => linksGenerator.dependencies(targetComponentsDir, map, projectBitJson))
     .then(map => linksGenerator.publicApi(targetModuleDir, map, projectBitJson))
     .then(() => componentsMap.buildForInline(targetInlineComponentsDir, projectBitJson))
-    .then(inlineMap => linksGenerator.publicApiForInlineComponents(targetModuleDir, inlineMap));
+    .then(inlineMap => linksGenerator.publicApiForInlineComponents(targetModuleDir, inlineMap))
+    .then(() => component);
 }
 
 const defaultProjectBitJson = {
@@ -83,3 +84,10 @@ export function watchAction(): Promise<any> {
 export function importAction(componentIds: string[]): Promise<any> {
   return fetchAction(componentIds).then(bindAction);
 }
+
+export const lifeCycleHooks = {
+  onCreate: bindAction,
+  onCommit: bindAction,
+  onImport: bindAction,
+  onExport: bindAction,
+};
