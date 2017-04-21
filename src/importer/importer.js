@@ -50,7 +50,7 @@ export function bindAction(): Promise<any> {
     .then(map => linksGenerator.publicApiComponentLevel(targetModuleDir, map, projectBitJson))
     .then(() => componentsMap.buildForInline(targetInlineComponentsDir, projectBitJson))
     .then(inlineMap => linksGenerator.publicApiForInlineComponents(targetModuleDir, inlineMap))
-    .then(() => linksGenerator.publicApiBoxLevel(targetModuleDir))
+    .then(() => linksGenerator.publicApiNamespaceLevel(targetModuleDir))
     .then(boxes => linksGenerator.publicApiRootLevel(targetModuleDir, boxes));
 }
 
