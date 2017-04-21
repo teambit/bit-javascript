@@ -86,7 +86,7 @@ export function importAction(componentIds: string[]): Promise<any> {
   return fetchAction(componentIds).then(bindAction);
 }
 
-export const lifeCycleHooks = {
+export const lifecycleHooks = {
   onCreate: bindAction,
   onCommit: bindAction,
   onImport: bindAction,
