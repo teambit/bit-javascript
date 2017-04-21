@@ -41,7 +41,7 @@ Promise<string[]> {
   });
 }
 
-export function bindAction(component?: ?Object): Promise<any> {
+export function bindAction(): Promise<any> {
   const targetModuleDir = path.join(projectRoot, MODULES_DIR, MODULE_NAME);
   const targetInlineComponentsDir = path.join(projectRoot, INLINE_COMPONENTS_DIRNAME);
   const projectBitJson = BitJson.load(projectRoot);
@@ -50,7 +50,6 @@ export function bindAction(component?: ?Object): Promise<any> {
     .then(map => linksGenerator.publicApi(targetModuleDir, map, projectBitJson))
     .then(() => componentsMap.buildForInline(targetInlineComponentsDir, projectBitJson))
     .then(inlineMap => linksGenerator.publicApiForInlineComponents(targetModuleDir, inlineMap))
-    .then(() => component);
 }
 
 const defaultProjectBitJson = {
