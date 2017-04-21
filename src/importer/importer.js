@@ -51,7 +51,7 @@ export function bindAction(): Promise<any> {
     .then(() => componentsMap.buildForInline(targetInlineComponentsDir, projectBitJson))
     .then(inlineMap => linksGenerator.publicApiForInlineComponents(targetModuleDir, inlineMap))
     .then(() => linksGenerator.publicApiNamespaceLevel(targetModuleDir))
-    .then(boxes => linksGenerator.publicApiRootLevel(targetModuleDir, boxes));
+    .then(namespaces => linksGenerator.publicApiRootLevel(targetModuleDir, namespaces));
 }
 
 const defaultProjectBitJson = {
