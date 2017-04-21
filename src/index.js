@@ -1,4 +1,4 @@
-import { lifeCycleHooks } from './importer/importer';
+import { lifecycleHooks } from './importer/importer';
 
 const assert = require('assert').ok;
 const R = require('ramda');
@@ -90,6 +90,6 @@ load.loadExact = resolveFromFullId;
 load.resolve = bitId => load(bitId, { pathOnly: true });
 
 // TODO: get rid of the entire "load" object, expose only the lifeCycleHooks.
-load.lifeCycleHooks = lifeCycleHooks;
+load.lifecycleHooks = lifecycleHooks;
 
 module.exports = load;
