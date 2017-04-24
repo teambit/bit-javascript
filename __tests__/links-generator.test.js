@@ -2,12 +2,10 @@ import fsMock from 'fs-extra';
 import * as linksGenerator from '../src/links-generator';
 
 jest.mock('fs-extra');
-fsMock.remove = jest.fn((dir, cb) => cb());
 fsMock.outputFile = jest.fn((file, content, cb) => cb());
 
 afterEach(() => {
   fsMock.outputFile.mockClear();
-  fsMock.remove.mockClear();
 });
 
 const mapFixture = {
@@ -64,16 +62,13 @@ describe('publicApiComponentLevel', () => {
   it('should not generate links if there are no dependencies', () => {
     const result = linksGenerator.publicApiComponentLevel('dir', {}, {});
     return result.then(() => {
-      expect(fsMock.remove.mock.calls.length).toBe(0);
       expect(fsMock.outputFile.mock.calls.length).toBe(0);
     });
   });
-  it('should remove the node_module/bit folder and generate links', () => {
+  it('should generate links', () => {
     const result = linksGenerator.publicApiComponentLevel('/my/project/node_modules/bit', mapFixture, projectBitJsonFixture);
     return result
       .then(() => {
-        expect(fsMock.remove.mock.calls.length).toBe(1);
-        expect(fsMock.remove.mock.calls[0][0]).toBe('/my/project/node_modules/bit');
         const outputFileCalls = fsMock.outputFile.mock.calls;
 
         // this makes sure it doesn't generate a link for "foreach" as it's not in the bit.json

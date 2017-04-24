@@ -19,9 +19,9 @@ function getRequiredFile(bitJson: BitJson): string {
     path.join(DEFAULT_DIST_DIRNAME, DEFAULT_BUNDLE_FILENAME) : bitJson.impl;
 }
 
-function getInlineScopeNameP(): Promise<string> {
+function getInlineScopeNameP(projectRoot: string): Promise<string> {
   return new Promise((resolve) => {
-    const inlineScope = InlineScope.load();
+    const inlineScope = InlineScope.load(projectRoot);
     inlineScope
       .then(inlineScopeName => resolve(inlineScopeName.getScopeName()))
       .catch(() => resolve(''));
@@ -43,10 +43,10 @@ export function buildForInline(targetComponentsDir: string, bitJson: BitJson): P
   });
 }
 
-export function build(targetComponentsDir: string): Promise<Object> {
+export function build(projectRoot: string, targetComponentsDir: string): Promise<Object> {
   return new Promise((resolve, reject) => {
     const componentsMap = {};
-    getInlineScopeNameP().then((inlineScopeName) => {
+    getInlineScopeNameP(projectRoot).then((inlineScopeName) => {
       glob('*/*/*/*', { cwd: targetComponentsDir }, (err, files) => {
         if (err) return reject(err);
         files.forEach((loc) => {
