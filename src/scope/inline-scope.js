@@ -4,6 +4,8 @@ import { BIT_HIDDEN_DIR } from '../constants';
 import { readFileP } from '../utils';
 
 export default class InlineScope {
+  scopeJson: Object;
+
   constructor(scopeJson: Object) {
     this.scopeJson = scopeJson;
   }
