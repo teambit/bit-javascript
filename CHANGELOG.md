@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+- add public-api for pending export components
 - major refactor + remove old deprecated behavior (the load function)
 - change name to bit-javascript
 
