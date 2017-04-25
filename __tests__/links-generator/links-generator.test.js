@@ -1,6 +1,6 @@
+import mockFs from 'mock-fs';
 import fsMock from 'fs-extra';
 import * as linksGenerator from '../../src/links-generator';
-import mockFs from 'mock-fs';
 
 jest.mock('fs-extra');
 fsMock.outputFile = jest.fn((file, content, cb) => cb());
@@ -14,6 +14,7 @@ const mapFixture = {
     loc: 'compilers/flow/bit.envs/2',
     file: 'impl.js',
     dependencies: [],
+    isFromInlineScope: true,
   },
   'bit.utils/object/foreach::1': {
     loc: 'object/foreach/bit.utils/1',
@@ -146,5 +147,24 @@ describe('publicApiNamespaceLevel', () => {
   flow: require('./flow')
 };`);
     });
+  });
+});
+
+describe('publicApiForExportPendingComponents', () => {
+  it('should not generate links if there are no export-pending components', () => {
+    const result = linksGenerator.publicApiForExportPendingComponents('dir', {});
+    return result.then(() => {
+      expect(fsMock.outputFile.mock.calls.length).toBe(0);
+    });
+  });
+  it('should generate links for components with isFromInlineScope = true', () => {
+    const result = linksGenerator.publicApiForExportPendingComponents('/my/project/node_modules/bit', mapFixture);
+    return result
+      .then(() => {
+        const outputFileCalls = fsMock.outputFile.mock.calls;
+        expect(outputFileCalls.length).toBe(1);
+        expect(outputFileCalls[0][0]).toBe('/my/project/node_modules/bit/compilers/flow/index.js');
+        expect(outputFileCalls[0][1]).toBe("module.exports = require('../../../../components/compilers/flow/bit.envs/2/impl.js');");
+      });
   });
 });
