@@ -1,5 +1,6 @@
 import fsMock from 'fs-extra';
 import * as linksGenerator from '../../src/links-generator';
+import mockFs from 'mock-fs';
 
 jest.mock('fs-extra');
 fsMock.outputFile = jest.fn((file, content, cb) => cb());
@@ -119,6 +120,30 @@ describe('publicApiRootLevel', () => {
       expect(outputFileCalls[0][0]).toBe('/my/project/node_modules/bit/index.js');
       expect(outputFileCalls[0][1]).toBe(`module.exports = {
   global: require('./global')
+};`);
+    });
+  });
+});
+
+describe('publicApiNamespaceLevel', () => {
+  it('should not create links if there are no namespaces', () => {
+    const result = linksGenerator.publicApiNamespaceLevel('dir');
+    return result.then(() => {
+      expect(fsMock.outputFile.mock.calls.length).toBe(0);
+    });
+  });
+
+  it('should generate an index.js in the node_modules/bit/namespace directory', () => {
+    mockFs({
+      '/my/project/node_modules/bit/compilers/flow': {},
+    });
+    const result = linksGenerator.publicApiNamespaceLevel('/my/project/node_modules/bit');
+    return result.then(() => {
+      const outputFileCalls = fsMock.outputFile.mock.calls;
+      expect(outputFileCalls.length).toBe(1);
+      expect(outputFileCalls[0][0]).toBe('/my/project/node_modules/bit/compilers/index.js');
+      expect(outputFileCalls[0][1]).toBe(`module.exports = {
+  flow: require('./flow')
 };`);
     });
   });
