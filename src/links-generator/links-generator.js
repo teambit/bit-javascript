@@ -126,7 +126,7 @@ export function publicApiRootLevel(targetModuleDir: string, namespaces: string[]
 export function publicApiForExportPendingComponents(targetModuleDir: string, map: Object):
 Promise<Object> {
   const exportPendingComponents = Object.keys(map)
-    .filter(component => map[component].isFromInlineScope === true);
+    .filter(component => map[component].isFromLocalScope === true);
   if (!exportPendingComponents.length) return Promise.resolve(map);
   const writeAllFiles = exportPendingComponents.map((component) => {
     const [namespace, name] = map[component].loc.split(ID_DELIMITER);
