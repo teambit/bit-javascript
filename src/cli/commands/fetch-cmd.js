@@ -6,8 +6,12 @@ import { VERSION_DELIMITER } from '../../constants';
 
 const printComponents = components => components.map((component) => {
   const [name, version] = component.split(VERSION_DELIMITER);
-  return `\t> ${name} - ${version || 'latest'}`;
+  return chalk.cyan(`\t> ${name} - ${version || 'latest'}`);
 }).join('\n');
+
+const reportTitle = chalk.underline('successfully fetched the following Bit components\n');
+
+export const report = components => reportTitle + printComponents(components);
 
 const fetchCommand: Command = {
   name: 'fetch',
@@ -15,12 +19,11 @@ const fetchCommand: Command = {
   arguments: [
     {
       name: '[ids...]',
-      description: 'a list of component ids seperated by spaces',
+      description: 'a list of component ids separated by spaces',
     },
   ],
   action: args => fetchAction((args && args.ids) || []),
-  report: components => chalk.underline('successfully fetched the following Bit components.\n')
-  + chalk.cyan(printComponents(components)),
+  report,
   loaderText: 'Fetching components',
   loader: true,
 };
