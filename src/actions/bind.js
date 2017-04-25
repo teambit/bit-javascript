@@ -13,7 +13,7 @@ export default function bindAction(): Promise<any> {
   const targetInlineComponentsDir = path.join(projectRoot, INLINE_COMPONENTS_DIRNAME);
   const projectBitJson = BitJson.load(projectRoot);
   return removeDirP(targetModuleDir)
-    .then(() => componentsMap.build(targetComponentsDir))
+    .then(() => componentsMap.build(projectRoot, targetComponentsDir))
     .then(map => linksGenerator.dependencies(targetComponentsDir, map, projectBitJson))
     .then(map => linksGenerator.publicApiForExportPendingComponents(targetModuleDir, map))
     .then(map => linksGenerator.publicApiComponentLevel(targetModuleDir, map, projectBitJson))
