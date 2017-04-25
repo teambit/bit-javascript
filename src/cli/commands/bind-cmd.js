@@ -12,6 +12,7 @@ const bindCommand: Command = {
   action: () => bindAction(),
   report: components => `Bound ${chalk.bold(Object.keys(components).length)} components:
 ${chalk.green(printComponents(components))}`,
+  loaderText: 'Binding node_modules/bit directory structure to bit.json',
   loader: true,
 };
 
