@@ -21,8 +21,7 @@ function getRequiredFile(bitJson: BitJson): string {
 
 function getLocalScopeNameP(projectRoot: string): Promise<?string> {
   return new Promise((resolve) => {
-    const localScope = LocalScope.load(projectRoot);
-    localScope
+    return LocalScope.load(projectRoot)
       .then(localScopeName => resolve(localScopeName.getScopeName()))
       .catch(() => resolve(null));
   });
