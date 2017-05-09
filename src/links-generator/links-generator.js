@@ -49,12 +49,10 @@ function filterNonReferencedComponents(
   return R.uniq(components.concat(componentDependencies));
 }
 
-export function dependencies(
-  targetComponentsDir: string, map: Object, projectBitJson: BitJson,
-): Promise<Object> {
+function generateDependenciesP(targetComponentsDir: string, map: Object, components: string[]) {
   return new Promise((resolve, reject) => {
     const promises = [];
-    const components = filterNonReferencedComponents(map, projectBitJson);
+
     components.forEach((component) => {
       const targetModuleDir = path.join(
         targetComponentsDir,
@@ -78,6 +76,18 @@ export function dependencies(
     });
     Promise.all(promises).then(() => resolve(map)).catch(reject);
   });
+}
+
+export function dependencies(
+  targetComponentsDir: string, map: Object, projectBitJson: BitJson,
+): Promise<Object> {
+  const components = filterNonReferencedComponents(map, projectBitJson);
+  return generateDependenciesP(targetComponentsDir, map, components);
+}
+
+export function dependenciesForSpecificComponents(
+  targetComponentsDir: string, map: Object, components: Object): Promise<Object> {
+  return generateDependenciesP(targetComponentsDir, map, Object.keys(components));
 }
 
 function generateLinkP(targetModuleDir, namespace, name, map, id, sourceComponentsDir) {
@@ -149,6 +159,7 @@ export function publicApiComponentLevel(
   projectBitJson: BitJson,
 ): Promise<Object> {
   const components = {};
+
   if (!projectBitJson.dependencies || R.isEmpty(projectBitJson.dependencies)) {
     return Promise.resolve(components);
   }
@@ -158,6 +169,23 @@ export function publicApiComponentLevel(
     const mapId = id + VERSION_DELIMITER + projectBitJson.dependencies[id];
     if (!map[mapId]) return Promise.resolve(); // the file is in bit.json but not fetched yet
     components[`${namespace}/${name}`] = mapId;
+    return generateLinkP(targetModuleDir, namespace, name, map, mapId, COMPONENTS_DIRNAME);
+  });
+
+  return Promise.all(writeAllFiles).then(() => components);
+}
+
+export function publicApiComponentLevelForSpecificComponents(
+  targetModuleDir: string,
+  map: Object,
+  components: Object,
+): Promise<Object> {
+  const writeAllFiles = Object.keys(components).map((componentId) => {
+    const component = components[componentId];
+    const namespace = component.box;
+    const name = component.name;
+    const mapId = component.id;
+    if (!map[mapId]) return Promise.resolve(); // the file is not in the FS for some reason
     return generateLinkP(targetModuleDir, namespace, name, map, mapId, COMPONENTS_DIRNAME);
   });
 

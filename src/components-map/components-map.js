@@ -11,7 +11,7 @@ import {
 } from '../constants';
 import LocalScope from '../scope/local-scope';
 
-const generateId = ({ scope, namespace, name, version }) =>
+export const generateId = ({ scope, namespace, name, version }) =>
   scope + ID_DELIMITER + namespace + ID_DELIMITER + name + VERSION_DELIMITER + version;
 
 function getRequiredFile(bitJson: BitJson): string {
