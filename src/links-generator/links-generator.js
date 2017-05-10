@@ -50,6 +50,19 @@ function filterNonReferencedComponents(
   return R.uniq(components.concat(componentDependencies));
 }
 
+export function publicApiNamespaceLevel(
+  targetModuleDir: string, namespacesMap: Object): Promise<Object> {
+  if (!namespacesMap || R.isEmpty(namespacesMap)) return Promise.resolve(namespacesMap);
+  const writeAllFiles = [];
+  Object.keys(namespacesMap).forEach((namespace) => {
+    const links = namespacesMap[namespace].map(name => `${camelcase(name)}: require('./${name}')`);
+    const indexFile = path.join(targetModuleDir, namespace, INDEX_JS);
+    writeAllFiles.push(writeFileP(indexFile, linksTemplate(links)));
+  });
+
+  return Promise.all(writeAllFiles).then(() => namespacesMap);
+}
+
 function generateDependenciesP(targetComponentsDir: string, map: Object, components: string[]) {
   return new Promise((resolve, reject) => {
     const promises = [];
@@ -62,6 +75,7 @@ function generateDependenciesP(targetComponentsDir: string, map: Object, compone
         MODULE_NAME,
       );
 
+      const namespaceMap = {};
       map[component].dependencies.forEach((dependency) => {
         if (dependency.startsWith(REMOTE_ALIAS_SIGN)) {
           dependency = dependency.replace(REMOTE_ALIAS_SIGN, ''); // eslint-disable-line
@@ -75,9 +89,11 @@ function generateDependenciesP(targetComponentsDir: string, map: Object, compone
           map[dependency].loc,
           map[dependency].file,
         );
-
         promises.push(writeFileP(targetFile, linkTemplate(dependencyDir)));
+        if (namespaceMap[namespace]) namespaceMap[namespace].push(name);
+        else namespaceMap[namespace] = [name];
       });
+      promises.push(publicApiNamespaceLevel(targetModuleDir, namespaceMap));
     });
     Promise.all(promises).then(() => resolve(map)).catch(reject);
   });
@@ -117,19 +133,6 @@ export function publicApiForInlineComponents(
   }));
 
   return writeAllFiles.then(() => components);
-}
-
-export function publicApiNamespaceLevel(
-  targetModuleDir: string, namespacesMap: Object): Promise<Object> {
-  if (!namespacesMap || R.isEmpty(namespacesMap)) return Promise.resolve(namespacesMap);
-  const writeAllFiles = [];
-  Object.keys(namespacesMap).forEach((namespace) => {
-    const links = namespacesMap[namespace].map(name => `${camelcase(name)}: require('./${name}')`);
-    const indexFile = path.join(targetModuleDir, namespace, INDEX_JS);
-    writeAllFiles.push(writeFileP(indexFile, linksTemplate(links)));
-  });
-
-  return Promise.all(writeAllFiles).then(() => namespacesMap);
 }
 
 export function publicApiRootLevel(
