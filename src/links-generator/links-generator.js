@@ -9,6 +9,7 @@ import { MODULE_NAME,
   VERSION_DELIMITER,
   ID_DELIMITER,
   INDEX_JS,
+  REMOTE_ALIAS_SIGN,
   INLINE_COMPONENTS_DIRNAME } from '../constants';
 import { writeFileP } from '../utils';
 
@@ -62,6 +63,9 @@ function generateDependenciesP(targetComponentsDir: string, map: Object, compone
       );
 
       map[component].dependencies.forEach((dependency) => {
+        if (dependency.startsWith(REMOTE_ALIAS_SIGN)) {
+          dependency = dependency.replace(REMOTE_ALIAS_SIGN, ''); // eslint-disable-line
+        }
         if (!map[dependency]) return; // the dependency is not in the FS. should we throw an error?
         const [namespace, name] = map[dependency].loc.split(path.sep);
         const targetFile = path.join(targetModuleDir, namespace, name, INDEX_JS);
