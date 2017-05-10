@@ -54,5 +54,8 @@ export function bindSpecificComponentsAction({ projectRoot = process.cwd(), comp
     .then(map => linksGenerator
       .dependenciesForSpecificComponents(targetComponentsDir, map, componentsObj))
     .then(map => linksGenerator
-      .publicApiComponentLevelForSpecificComponents(targetModuleDir, map, componentsObj));
+      .publicApiComponentLevelForSpecificComponents(targetModuleDir, map, componentsObj))
+    .then(() => componentsMap.buildForNamespaces(targetModuleDir))
+    .then(namespacesMap => linksGenerator.publicApiNamespaceLevel(targetModuleDir, namespacesMap))
+    .then(namespacesMap => linksGenerator.publicApiRootLevel(targetModuleDir, namespacesMap));
 }
