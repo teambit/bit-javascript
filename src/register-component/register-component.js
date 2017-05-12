@@ -1,5 +1,5 @@
 // @flow
-import fs from 'fs';
+import fs from 'fs-extra';
 import path from 'path';
 import chalk from 'chalk';
 import requireFromString from 'require-from-string';
@@ -20,7 +20,6 @@ function requireCompiledSource(componentDir: string, distFile: string): string {
   const bitJson = BitJson.load(componentDir);
   const compilerId = bitJson.compiler;
   const implFile = path.join(componentDir, bitJson.impl);
-
   let compilerPath: string;
   const implFileContent = fs.readFileSync(implFile);
   try {
@@ -31,7 +30,7 @@ function requireCompiledSource(componentDir: string, distFile: string): string {
   const compiler = require(compilerPath); // eslint-disable-line
   if (!compiler.compile) throw new InvalidCompiler(compilerId);
   const src = compiler.compile(implFileContent);
-  fs.writeFileSync(distFile, src.code);
+  fs.outputFileSync(distFile, src.code);
   return requireFromString(src.code);
 }
 
