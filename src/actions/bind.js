@@ -23,17 +23,17 @@ Promise<any> {
   const publicApiComponentsLinks = await LinksGenerator
   .publicApiComponentLevel(moduleDir, componentsMap, projectBitJson);
 
-  const componentsDependenciesLinks = await LinksGenerator
+  const componentsDependenciesLinks = await LinksGenerator // eslint-disable-line
   .componentsDependencies(componentsDir, componentsMap, inlineComponentMap, projectBitJson);
 
   const stagedComponentsLinks = await LinksGenerator
   .publicApiForExportPendingComponents(moduleDir, componentsMap);
 
-  const inlineComponentsDependenciesLinks = await LinksGenerator
-  .dependenciesForInlineComponents(inlineComponentsDir, componentsMap, inlineComponentMap);
-
   const publicApiInlineComponentsLinks = await LinksGenerator
   .publicApiForInlineComponents(moduleDir, inlineComponentMap, inlineComponentsDir);
+
+  const inlineComponentsDependenciesLinks = await LinksGenerator // eslint-disable-line
+  .dependenciesForInlineComponents(inlineComponentsDir, componentsMap, inlineComponentMap);
 
   const namespacesMap = await ComponentsMap.buildForNamespaces(moduleDir);
 

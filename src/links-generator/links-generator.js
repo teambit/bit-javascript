@@ -219,7 +219,7 @@ export function publicApiForExportPendingComponents(
   return Promise.all(writeAllFiles).then(() => components);
 }
 
-export function publicApiComponentLevel(
+export async function publicApiComponentLevel(
   targetModuleDir: string,
   map: Object,
   projectBitJson: BitJson,
@@ -227,13 +227,13 @@ export function publicApiComponentLevel(
   const components = {};
 
   if (!projectBitJson.dependencies || R.isEmpty(projectBitJson.dependencies)) {
-    return Promise.resolve(components);
+    return components;
   }
 
   const writeAllFiles = Object.keys(projectBitJson.dependencies).map((id) => {
     const [, namespace, name] = id.split(ID_DELIMITER);
     const mapId = id + VERSION_DELIMITER + projectBitJson.dependencies[id];
-    if (!map[mapId]) return Promise.resolve(); // the file is in bit.json but not fetched yet
+    if (!map[mapId]) return null; // the file is in bit.json but not fetched yet
     components[`${namespace}/${name}`] = mapId;
     return generateLinkP(targetModuleDir, namespace, name, map, mapId, COMPONENTS_DIRNAME);
   });
