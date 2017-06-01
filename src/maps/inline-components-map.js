@@ -1,16 +1,29 @@
 // @flow
+import R from 'ramda';
 import glob from 'glob';
 import path from 'path';
 import BitJson from 'bit-scope-client/bit-json';
 import { INLINE_COMPONENTS_DIRNAME } from '../constants';
+import InlineComponent from './inline-component';
 
 export default class InlineComponentsMap {
   targetDir: string;
   projectBitJson: BitJson;
+  _map: { string?: ?InlineComponent };
 
   constructor(targetDir: string, projectBitJson: BitJson) {
     this.targetDir = targetDir;
     this.projectBitJson = projectBitJson;
+    this._map = {};
+  }
+
+  addComponent(id: string, bitJson: BitJson) {
+    this._map[id] = InlineComponent.create({
+      loc: id,
+      file: bitJson.getRequiredFile(),
+      compiler: bitJson.compiler,
+      dependencies: bitJson.getDependenciesArray(),
+    });
   }
 
   build(): Promise<InlineComponentsMap> {
@@ -20,20 +33,33 @@ export default class InlineComponentsMap {
         files.forEach((loc) => {
           const componentPath = path.join(this.targetDir, loc);
           const bitJson = BitJson.load(componentPath, this.projectBitJson);
-          const requiredFile = bitJson.getRequiredFile();
-          const compiler = bitJson.compiler;
-          const dependencies = bitJson.getDependenciesArray();
-
-          // validate Id
-          // seperate version and Id
-          // componentsMap[loc] = {
-          //   { loc, file: requiredFile, compiler, dependencies }
-          // };
+          this.addComponent(loc, bitJson);
         });
-      });
 
-      return resolve(this);
+        return resolve(this);
+      });
     });
+  }
+
+  getComponent(id: string) {
+    if (!Object.hasOwnProperty.call(this._map, id)) return null;
+    return this._map[id];
+  }
+
+  map(func: Function): any[] {
+    return Object.keys(this._map).map((key: string, index: number) =>
+      func(this._map[key], key, index),
+    );
+  }
+
+  forEach(func: Function): void {
+    return Object.keys(this._map).forEach((key: string, index: number) =>
+      func(this._map[key], key, index),
+    );
+  }
+
+  isEmpty() {
+    return !this._map || R.isEmpty(this._map);
   }
 
   static async create(projectRoot, projectBitJson): Promise<InlineComponentsMap> {

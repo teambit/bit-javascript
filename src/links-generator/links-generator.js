@@ -12,6 +12,8 @@ import { MODULE_NAME,
   REMOTE_ALIAS_SIGN,
   INLINE_COMPONENTS_DIRNAME } from '../constants';
 import { writeFileP } from '../utils';
+import { InlineComponentsMap } from '../maps';
+import InlineComponent from '../maps/inline-component';
 
 const linkTemplate = (link: string): string => `module.exports = require('${link}');`;
 const namespaceTemplate = (name: string): string => `${camelcase(name)}: require('./${name}')`;
@@ -165,41 +167,34 @@ export function dependenciesForSpecificComponents(
   return generateDependenciesP(targetComponentsDir, map, Object.keys(components));
 }
 
-function generateLinkP(targetModuleDir, namespace, name, map, id, sourceComponentsDir) {
-  const targetDir = path.join(targetModuleDir, namespace, name, INDEX_JS);
-  const relativeComponentsDir = path.join(...Array(4).fill('..'), sourceComponentsDir);
-  const dependencyDir = path.join(relativeComponentsDir, map[id].loc, map[id].file);
-  return writeFileP(targetDir, linkTemplate(dependencyDir));
-}
-
-function generateRegisterLinkP(targetModuleDir, namespace, name, componentDir, distFile) {
-  const template = `module.exports = require('bit-javascript/register-component')('${componentDir}','${distFile}');`;
-  const targetDir = path.join(targetModuleDir, namespace, name, INDEX_JS);
-  return writeFileP(targetDir, template);
-}
-
-export function publicApiForInlineComponents(
+function generateLinkP(
+  sourceComponentsDir: string,
   targetModuleDir: string,
-  inlineMap: Object,
-  targetInlineComponentsDir: string,
+  component: InlineComponent,
+) {
+  const targetComponentDir = path.join(targetModuleDir, component.path, INDEX_JS);
+  const relativeComponentsDir = path.join(...Array(4).fill('..'), sourceComponentsDir);
+  const dependencyDir = path.join(relativeComponentsDir, component.filePath);
+  return writeFileP(targetComponentDir, linkTemplate(dependencyDir));
+}
+
+// function generateRegisterLinkP(targetModuleDir, namespace, name, componentDir, distFile) {
+//   const template = `module.exports = require('bit-javascript/register-component')('${componentDir}','${distFile}');`;
+//   const targetDir = path.join(targetModuleDir, namespace, name, INDEX_JS);
+//   return writeFileP(targetDir, template);
+// }
+
+export async function publicApiForInlineComponents(
+  targetModuleDir: string,
+  inlineMap: InlineComponentsMap,
 ): Promise<Object> {
-  const components = {};
-  if (!inlineMap || R.isEmpty(inlineMap)) return Promise.resolve(components);
+  if (inlineMap.isEmpty()) return {};
 
-  const writeAllFiles = Promise.all(Object.keys(inlineMap).map((id) => {
-    const [namespace, name] = id.split(path.sep);
-    components[`${namespace}/${name}`] = id;
-    // TODO - talk about it
-    // if (process.env.NODE_ENV === 'production' || inlineMap[id].compiler === NO_PLUGIN_TYPE) {
-    return generateLinkP(targetModuleDir, namespace, name, inlineMap, id,
-      INLINE_COMPONENTS_DIRNAME);
-    // }
-    // const componentDir = path.join(targetInlineComponentsDir, inlineMap[id].loc);
-    // const distFile = path.join(componentDir, inlineMap[id].file);
-    // return generateRegisterLinkP(targetModuleDir, namespace, name, componentDir, distFile);
-  }));
-
-  return writeAllFiles.then(() => components);
+  return Promise.all(
+    inlineMap.map((component) => {
+      return generateLinkP(targetModuleDir, component, INLINE_COMPONENTS_DIRNAME);
+    }),
+  );
 }
 
 export function publicApiForExportPendingComponents(

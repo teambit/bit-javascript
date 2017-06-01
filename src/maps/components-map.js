@@ -1,107 +1,107 @@
 // @flow
+import R from 'ramda';
 import glob from 'glob';
 import path from 'path';
+import { BitId as ComponentId } from 'bit-scope-client/bit-id';
 import BitJson from 'bit-scope-client/bit-json';
-import {
-  VERSION_DELIMITER,
-  ID_DELIMITER,
-  DEFAULT_DIST_DIRNAME,
-  NO_PLUGIN_TYPE,
-  REMOTE_ALIAS_SIGN,
-} from '../constants';
-import LocalScope from '../scope/local-scope';
+import { COMPONENTS_DIRNAME, LATEST_BIT_VERSION } from '../constants';
+import Component from './component';
 
-export const generateId = ({ scope, namespace, name, version }: { scope: string, namespace: string,
-  name: string, version: string }) =>
-  scope + ID_DELIMITER + namespace + ID_DELIMITER + name + VERSION_DELIMITER + version;
+export default class ComponentsMap {
+  targetDir: string;
+  projectBitJson: BitJson;
+  _map: { string?: { [string]: Component } };
+  scopeName: ?string;
 
-// function getRequiredFileDEPRECATED(bitJson: BitJson): string {
-//   return !bitJson.compiler || bitJson.compiler !== NO_PLUGIN_TYPE ?
-//     path.join(DEFAULT_DIST_DIRNAME, DEFAULT_BUNDLE_FILENAME) : bitJson.impl;
-// }
+  constructor(targetDir: string, projectBitJson: BitJson, localScopeName: ?string) {
+    this.targetDir = targetDir;
+    this.projectBitJson = projectBitJson;
+    this.scopeName = localScopeName;
+    this._map = {};
+  }
 
-function getRequiredFile(bitJson: BitJson): string {
-  return !bitJson.compiler || bitJson.compiler !== NO_PLUGIN_TYPE ?
-    path.join(DEFAULT_DIST_DIRNAME, bitJson.distImplFileName) : bitJson.distImplFileName;
-}
+  addComponent(loc: string, bitJson: BitJson) {
+    const separatorLocation = loc.lastIndexOf('/');
+    const base = loc.slice(0, separatorLocation);
+    const version = loc.slice(separatorLocation + 1);
 
-function getLocalScopeNameP(projectRoot: string): Promise<?string> {
-  return new Promise(resolve => LocalScope.load(projectRoot)
-    .then(localScopeName => resolve(localScopeName.getScopeName()))
-    .catch(() => resolve(null)));
-}
+    if (!this._map[base]) this._map[base] = {};
 
-function getDependenciesArray(bitJson: BitJson): string[] {
-  const dependencies = [];
-  Object.keys(bitJson.dependencies).forEach((dependency) => {
-    let dependencyWithoutAlias = dependency;
-    if (dependency.startsWith(REMOTE_ALIAS_SIGN)) {
-      dependencyWithoutAlias = dependency.replace(REMOTE_ALIAS_SIGN, '');
-    }
-    dependencies.push(dependencyWithoutAlias + VERSION_DELIMITER
-      + bitJson.dependencies[dependency]);
-  });
-  return dependencies;
-}
-
-export function buildForInline(targetComponentsDir: string, projectBitJson: BitJson):
-Promise<Object> {
-  return new Promise((resolve, reject) => {
-    const componentsMap = {};
-    glob('*/*', { cwd: targetComponentsDir }, (err, files) => {
-      if (err) return reject(err);
-      files.forEach((loc) => {
-        const bitJsonPath = path.join(targetComponentsDir, loc);
-        let bitJson;
-        try {
-          bitJson = BitJson.loadIfExists(bitJsonPath);
-        } catch (e) {
-          bitJson = projectBitJson;
-        }
-        const file = getRequiredFile(bitJson);
-        const compiler = bitJson.compiler;
-        const dependencies = getDependenciesArray(bitJson);
-        componentsMap[loc] = { loc, file, compiler, dependencies };
-      });
-
-      return resolve(componentsMap);
+    this._map[base][version] = Component.create({
+      loc,
+      file: bitJson.getRequiredFile(),
+      compiler: bitJson.compiler,
+      dependencies: bitJson.getDependenciesArray(),
+      localScopeName: this.scopeName,
     });
-  });
-}
+  }
 
-export function buildForNamespaces(targetModuleDir: string): Promise<Object> {
-  return new Promise((resolve, reject) => {
-    const namespaceMap = {};
-    glob('*/*', { cwd: targetModuleDir }, (err, dirs) => {
-      if (err) return reject(err);
-      dirs.forEach((dir) => {
-        const [namespace, name] = dir.split(path.sep);
-        if (namespaceMap[namespace]) namespaceMap[namespace].push(name);
-        else namespaceMap[namespace] = [name];
-      });
-      return resolve(namespaceMap);
-    });
-  });
-}
-
-export function build(projectRoot: string, targetComponentsDir: string): Promise<Object> {
-  return new Promise((resolve, reject) => {
-    const componentsMap = {};
-    getLocalScopeNameP(projectRoot).then((localScopeName) => {
-      glob('*/*/*/*', { cwd: targetComponentsDir }, (err, files) => {
+  build(): Promise<ComponentsMap> {
+    return new Promise((resolve, reject) => {
+      glob('*/*/*/*', { cwd: this.targetDir }, (err, files) => {
         if (err) return reject(err);
         files.forEach((loc) => {
-          const [namespace, name, scope, version] = loc.split(path.sep);
-          const id = generateId({ scope, namespace, name, version });
-          const bitJson = BitJson.load(path.join(targetComponentsDir, loc));
-          const dependencies = getDependenciesArray(bitJson);
-          const file = getRequiredFile(bitJson);
-          const isFromLocalScope = localScopeName ? localScopeName === scope : false;
-
-          componentsMap[id] = { loc, file, dependencies, isFromLocalScope };
+          const componentPath = path.join(this.targetDir, loc);
+          const bitJson = BitJson.load(componentPath, this.projectBitJson);
+          this.addComponent(loc, bitJson);
         });
-        return resolve(componentsMap);
+
+        return resolve(this);
       });
     });
-  });
+  }
+
+  getComponent(componentId: ComponentId): ?Component {
+    const base = `${componentId.box}/${componentId.name}/${componentId.scope}`;
+    const version = componentId.version;
+    if (version === LATEST_BIT_VERSION) return this.getLatestComponent(base);
+    if (!Object.hasOwnProperty.call(this._map, base)) return null;
+    if (!Object.hasOwnProperty.call(this._map[base], version)) return null;
+    return this._map[base][version];
+  }
+
+  getLatestComponent(baseId: string): ?Component {
+    if (!Object.hasOwnProperty.call(this._map, baseId)) return null;
+    if (R.isEmpty(this._map[baseId])) return null;
+    const maxInArr = R.reduce(R.max, null);
+    const castArrToNumber = R.map(s => parseInt(s, 10));
+    const versionsArr = castArrToNumber(R.keys(this._map[baseId]));
+    const maxVersion = maxInArr(versionsArr).toString();
+    return this._map[baseId][maxVersion];
+  }
+
+  forEach(func: Function): void {
+    R.mapObjIndexed((versionsObj) => {
+      R.mapObjIndexed((component) => {
+        func(component);
+      }, versionsObj);
+    }, this._map);
+  }
+
+  map(func: Function): Component[] {
+    return R.mapObjIndexed(versionsObj =>
+      R.mapEachObjIndexed(component =>
+        func(component),
+      versionsObj),
+    this._map);
+  }
+
+  getLatestComponents(): Component[] {
+    const baseIds = R.keys(this._map);
+    return baseIds.map(this.getLatestComponent.bind(this));
+  }
+
+  getLatestStagedComponents(): Component[] {
+    return this.getLatestComponents().filter(c => c.isLocal);
+  }
+
+  isEmpty() {
+    return !this._map || R.isEmpty(this._map);
+  }
+
+  static async create(projectRoot, projectBitJson, localScopeName): Promise<ComponentsMap> {
+    const componentsDir = path.join(projectRoot, COMPONENTS_DIRNAME);
+    const map = new ComponentsMap(componentsDir, projectBitJson, localScopeName);
+    return map.build();
+  }
 }
