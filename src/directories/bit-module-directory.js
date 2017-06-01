@@ -42,85 +42,85 @@ export default class BitModuleDirectory extends LinksDirectory {
     });
   }
 
-  async addLinksFromInlineComponents(
+  addLinksFromInlineComponents(
     inlineMap: InlineComponentsMap,
-  ): Promise<any> {
-    return Promise.all(
-      inlineMap.map((inlineComponent: InlineComponent) => {
-        const sourceFile = this.getComponentFilePath({
-          name: inlineComponent.name,
-          namespace: inlineComponent.namespace,
-        });
+  ): Promise<Component[]> {
+    return inlineMap.map((inlineComponent: InlineComponent) => {
+      const sourceFile = this.getComponentFilePath({
+        name: inlineComponent.name,
+        namespace: inlineComponent.namespace,
+      });
 
-        const destFile = path.join(
-          this.rootPath,
-          INLINE_COMPONENTS_DIRNAME,
-          inlineComponent.filePath,
-        );
+      const destFile = path.join(
+        this.rootPath,
+        INLINE_COMPONENTS_DIRNAME,
+        inlineComponent.filePath,
+      );
 
-        return this.addLink(
-          Link.create({
-            from: sourceFile,
-            to: destFile,
-          }),
-        );
-      }),
-    );
+      this.addLink(
+        Link.create({
+          from: sourceFile,
+          to: destFile,
+        }),
+      );
+
+      return inlineComponent;
+    });
   }
 
-  async addLinksFromProjectDependencies(
+  addLinksFromProjectDependencies(
     componentsMap: ComponentsMap,
     dependenciesArray: string[],
-  ): Promise<any> {
-    return Promise.all(
-      dependenciesArray.map((componentIdStr: string) => {
-        const componentId = ComponentId.parse(componentIdStr);
-        const component = componentsMap.getComponent(componentId);
+  ): Component[] {
+    return dependenciesArray.map((componentIdStr: string) => {
+      const componentId = ComponentId.parse(componentIdStr);
+      const component = componentsMap.getComponent(componentId);
 
-        const sourceFile = this.getComponentFilePath({
-          name: component.name,
-          namespace: component.namespace,
-        });
+      const sourceFile = this.getComponentFilePath({
+        name: component.name,
+        namespace: component.namespace,
+      });
 
-        const destFile = path.join(
-          this.rootPath,
-          COMPONENTS_DIRNAME,
-          component.filePath,
-        );
+      const destFile = path.join(
+        this.rootPath,
+        COMPONENTS_DIRNAME,
+        component.filePath,
+      );
 
-        return this.addLink(
-          Link.create({
-            from: sourceFile,
-            to: destFile,
-          }),
-        );
-      }),
-    );
+      this.addLink(
+        Link.create({
+          from: sourceFile,
+          to: destFile,
+        }),
+      );
+
+      return component;
+    });
   }
 
-  async addLinksFromStageComponents(
+  addLinksFromStageComponents(
     componentsMap: ComponentsMap,
-  ): Promise<any> {
-    return Promise.all(
-      componentsMap.getLatestStagedComponents().map((component) => {
-        const sourceFile = this.getComponentFilePath({
-          name: component.name,
-          namespace: component.namespace,
-        });
+  ): Component[] {
+    return componentsMap.getLatestStagedComponents().map((component) => {
+      const sourceFile = this.getComponentFilePath({
+        name: component.name,
+        namespace: component.namespace,
+      });
 
-        const destFile = path.join(
-          this.rootPath,
-          COMPONENTS_DIRNAME,
-          component.filePath,
-        );
+      const destFile = path.join(
+        this.rootPath,
+        COMPONENTS_DIRNAME,
+        component.filePath,
+      );
 
-        return this.addLink(
-          Link.create({
-            from: sourceFile,
-            to: destFile,
-          }),
-        );
-      }),
-    );
+      this.addLink(
+        Link.create({
+          from: sourceFile,
+          to: destFile,
+        }),
+      );
+
+      return component;
+    });
   }
 }
