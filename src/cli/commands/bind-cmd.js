@@ -4,7 +4,7 @@ import { type Command } from './types';
 import { bindAction } from '../../actions';
 
 const reportComponents = components => Object.keys(components)
-  .map(component => chalk.cyan(`\t${component} => ${components[component].to}`)).join('\n');
+  .map(component => chalk.cyan(`\t${component} => ${components[component]}`)).join('\n');
 const reportTitle = components => chalk.underline(`Bound ${chalk.bold(Object.keys(components).length)} components\n`);
 export const report = (components: Object) => reportTitle(components)
 + reportComponents(components);

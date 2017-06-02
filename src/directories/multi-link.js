@@ -14,8 +14,8 @@ export default class MultiLink extends AbstractLink {
   get template(): string {
     const links = this.names.map(name => `${camelcase(name)}: require('.${path.sep}${name}')`);
     return `module.exports = {
-      ${links.join(',\n  ')}
-    };`;
+  ${links.join(',\n  ')}
+};`;
   }
 
   static create({ from, names }: { from: string, names: string[] }): MultiLink {

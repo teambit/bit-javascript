@@ -1,10 +1,21 @@
 // @flow
 import R from 'ramda';
+import path from 'path';
 import BitJson from 'bit-scope-client/bit-json';
 import { InlineComponentsMap, ComponentsMap } from '../maps';
 import LocalScope from '../scope/local-scope';
 import { BitModuleDirectory, InlineComponentsDirectory, ComponentsDirectory } from '../directories';
-import Link from '../directories/link';
+import MultiLink from '../directories/multi-link';
+
+const stripNonRelevantDataFromLinks = (allLinks, projectRoot) => {
+  const links = {};
+  const stripProjectRoot = str => str.replace(`${projectRoot}${path.sep}`, '');
+  Object.keys(allLinks).forEach((link) => {
+    if (allLinks[link] instanceof MultiLink) return;
+    links[stripProjectRoot(link)] = stripProjectRoot(allLinks[link].to);
+  });
+  return links;
+};
 
 export default async function bindAction({ projectRoot = process.cwd() }: { projectRoot?: string}):
 Promise<any> {
@@ -34,11 +45,11 @@ Promise<any> {
   await inlineComponentsDirectory.persist();
   await componentsDirectory.persist();
 
-  const isLink = link => link instanceof Link;
-  const allLinks =  R.mergeAll([
+  const allLinks = R.mergeAll([
     bitModuleDirectory.links,
     inlineComponentsDirectory.links,
     componentsDirectory.links,
   ]);
-  return R.filter(isLink, allLinks); // filter out MultiLink
+
+  return stripNonRelevantDataFromLinks(allLinks, projectRoot);
 }
