@@ -4,7 +4,7 @@ import glob from 'glob';
 import path from 'path';
 import { BitId as ComponentId } from 'bit-scope-client/bit-id';
 import BitJson from 'bit-scope-client/bit-json';
-import { COMPONENTS_DIRNAME, LATEST_BIT_VERSION } from '../constants';
+import { COMPONENTS_DIRNAME, LATEST_BIT_VERSION, REMOTE_ALIAS_SIGN } from '../constants';
 import Component from './component';
 
 export default class ComponentsMap {
@@ -52,7 +52,9 @@ export default class ComponentsMap {
   }
 
   getComponent(componentId: ComponentId): ?Component {
-    const base = `${componentId.box}/${componentId.name}/${componentId.scope}`;
+    const scope = componentId.scope.startsWith(REMOTE_ALIAS_SIGN) ?
+      componentId.scope.replace(REMOTE_ALIAS_SIGN, '') : componentId.scope;
+    const base = `${componentId.box}/${componentId.name}/${scope}`;
     const version = componentId.version;
     if (version === LATEST_BIT_VERSION) return this.getLatestComponent(base);
     if (!Object.hasOwnProperty.call(this._map, base)) return null;

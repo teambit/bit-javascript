@@ -27,13 +27,13 @@ export default class ComponentsDirectory extends LinksDirectory {
     );
   }
 
-  async addLinksToDependencies(componentsMap: ComponentsMap) {
+  addLinksToDependencies(componentsMap: ComponentsMap): void {
     componentsMap.forEach((parentComponent: Component) => {
-      parentComponent.dependencies.forEach((dependency: string) => {
+      const dependencies = parentComponent.dependencies.map((dependency: string) => {
         const componentId = ComponentId.parse(dependency);
         const component = componentsMap.getComponent(componentId);
 
-        if (R.isNil(component)) return;
+        if (R.isNil(component)) return null;
 
         const sourceFile = this.getComponentFilePath({
           parentComponent,
@@ -53,7 +53,9 @@ export default class ComponentsDirectory extends LinksDirectory {
             to: destFile,
           }),
         );
+        return component;
       });
+      this.addLinksForNamespacesAndRoot(dependencies, parentComponent);
     });
   }
 }

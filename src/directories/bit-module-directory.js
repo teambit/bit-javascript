@@ -19,8 +19,11 @@ import {
 const bitModuleRelativePath = path.join(MODULES_DIR, MODULE_NAME);
 
 export default class BitModuleDirectory extends LinksDirectory {
+  linkedComponents: Component[];
+
   constructor(rootPath: string) {
     super(rootPath, bitModuleRelativePath);
+    this.linkedComponents = [];
   }
 
   getComponentFilePath({ name, namespace }: { name: string, namespace: string }) {
@@ -44,8 +47,8 @@ export default class BitModuleDirectory extends LinksDirectory {
 
   addLinksFromInlineComponents(
     inlineMap: InlineComponentsMap,
-  ): Promise<Component[]> {
-    return inlineMap.map((inlineComponent: InlineComponent) => {
+  ): InlineComponent[] {
+    const inlineComponents = inlineMap.map((inlineComponent: InlineComponent) => {
       const sourceFile = this.getComponentFilePath({
         name: inlineComponent.name,
         namespace: inlineComponent.namespace,
@@ -66,13 +69,16 @@ export default class BitModuleDirectory extends LinksDirectory {
 
       return inlineComponent;
     });
+
+    this.linkedComponents = this.linkedComponents.concat(inlineComponents);
+    return inlineComponents;
   }
 
   addLinksFromProjectDependencies(
     componentsMap: ComponentsMap,
     dependenciesArray: string[],
   ): Component[] {
-    return dependenciesArray.map((componentIdStr: string) => {
+    const components = dependenciesArray.map((componentIdStr: string) => {
       const componentId = ComponentId.parse(componentIdStr);
       const component = componentsMap.getComponent(componentId);
 
@@ -96,12 +102,15 @@ export default class BitModuleDirectory extends LinksDirectory {
 
       return component;
     });
+
+    this.linkedComponents = this.linkedComponents.concat(components);
+    return components;
   }
 
   addLinksFromStageComponents(
     componentsMap: ComponentsMap,
   ): Component[] {
-    return componentsMap.getLatestStagedComponents().map((component) => {
+    const components = componentsMap.getLatestStagedComponents().map((component) => {
       const sourceFile = this.getComponentFilePath({
         name: component.name,
         namespace: component.namespace,
@@ -122,5 +131,31 @@ export default class BitModuleDirectory extends LinksDirectory {
 
       return component;
     });
+    this.linkedComponents = this.linkedComponents.concat(components);
+    return components;
+  }
+
+  addLinksForNamespacesAndRoot() {
+    if (!this.linkedComponents.length) return;
+    const namespaceMap = {};
+    this.linkedComponents.forEach((component) => {
+      if (namespaceMap[component.namespace]) namespaceMap[component.namespace].push(component.name);
+      else namespaceMap[component.namespace] = [component.name];
+    });
+
+    Object.keys(namespaceMap).forEach((namespace) => {
+      this.addLink(
+        MultiLink.create({
+          from: path.join(this.path, namespace, INDEX_JS),
+          names: namespaceMap[namespace],
+        }),
+      );
+    });
+    this.addLink(
+      MultiLink.create({
+        from: path.join(this.path, INDEX_JS),
+        names: Object.keys(namespaceMap),
+      }),
+    );
   }
 }

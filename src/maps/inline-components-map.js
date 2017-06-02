@@ -32,7 +32,13 @@ export default class InlineComponentsMap {
         if (err) return reject(err);
         files.forEach((loc) => {
           const componentPath = path.join(this.targetDir, loc);
-          const bitJson = BitJson.load(componentPath, this.projectBitJson);
+          let bitJson;
+          try {
+            bitJson = BitJson.loadIfExists(componentPath);
+          } catch (e) {
+            bitJson = BitJson.load(componentPath, this.projectBitJson);
+            bitJson.dependencies = [];
+          }
           this.addComponent(loc, bitJson);
         });
 

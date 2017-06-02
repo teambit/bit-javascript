@@ -36,12 +36,12 @@ export default class InlineComponentsDirectory extends LinksDirectory {
   addLinksToDependencies(
     inlineComponentMap: InlineComponentsMap,
     componentsMap: ComponentsMap,
-  ) {
+  ): void {
     inlineComponentMap.forEach((parentComponent) => {
-      parentComponent.dependencies.forEach((dependency) => {
+      const dependencies = parentComponent.dependencies.map((dependency) => {
         const componentId = ComponentId.parse(dependency);
         const component = componentsMap.getComponent(componentId);
-        if (R.isNil(component)) return;
+        if (R.isNil(component)) return null;
 
         const sourceFile = this.getComponentFilePath({
           parentComponent,
@@ -61,7 +61,9 @@ export default class InlineComponentsDirectory extends LinksDirectory {
             to: destFile,
           }),
         );
+        return component;
       });
+      this.addLinksForNamespacesAndRoot(dependencies, parentComponent);
     });
   }
 }

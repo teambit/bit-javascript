@@ -24,6 +24,7 @@ Promise<any> {
   bitModuleDirectory.addLinksFromInlineComponents(inlineComponentMap);
   bitModuleDirectory.addLinksFromProjectDependencies(componentsMap, projectDependenciesArray);
   bitModuleDirectory.addLinksFromStageComponents(componentsMap);
+  bitModuleDirectory.addLinksForNamespacesAndRoot(componentsMap);
 
   inlineComponentsDirectory.addLinksToDependencies(inlineComponentMap, componentsMap);
   componentsDirectory.addLinksToDependencies(componentsMap);
