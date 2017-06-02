@@ -4,6 +4,7 @@ import BitJson from 'bit-scope-client/bit-json';
 import { InlineComponentsMap, ComponentsMap } from '../maps';
 import LocalScope from '../scope/local-scope';
 import { BitModuleDirectory, InlineComponentsDirectory, ComponentsDirectory } from '../directories';
+import Link from '../directories/link';
 
 export default async function bindAction({ projectRoot = process.cwd() }: { projectRoot?: string}):
 Promise<any> {
@@ -33,9 +34,11 @@ Promise<any> {
   await inlineComponentsDirectory.persist();
   await componentsDirectory.persist();
 
-  return R.mergeAll([
+  const isLink = link => link instanceof Link;
+  const allLinks =  R.mergeAll([
     bitModuleDirectory.links,
     inlineComponentsDirectory.links,
     componentsDirectory.links,
   ]);
+  return R.filter(isLink, allLinks); // filter out MultiLink
 }
