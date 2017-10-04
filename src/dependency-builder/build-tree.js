@@ -257,7 +257,6 @@ function updatePathMapWithLinkFilesData(pathMap) {
   pathMap.forEach((file) => {
     if (!file.dependencies || !file.dependencies.length) return;
     file.dependencies.forEach((dependency) => {
-
       if (!dependency.importSpecifiers || !dependency.importSpecifiers.length) {
         // importSpecifiers was not implemented for that language
         return;
@@ -286,6 +285,7 @@ function updateTreeAccordingToLinkFiles(tree, pathMap) {
     const linkFiles = [];
     tree[mainFile].files.forEach((dependency, key) => {
       const dependencyPathMap = mainFilePathMap.dependencies.find(file => file.relativePath === dependency);
+      if (!dependencyPathMap) return; // @todo: throw an error
       if (dependencyPathMap.linkFile) {
         const linkFile = { file: dependency, dependencies: dependencyPathMap.realDependencies };
         linkFiles.push(linkFile);
