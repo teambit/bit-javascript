@@ -165,15 +165,22 @@ function normalizePaths(tree) {
  */
 function getDependenciesFromLinkFileIfExists(dependency: Object, dependencyPathMap: Object): Object[] {
   const dependencies = [];
+  if (!dependency.importSpecifiers) return dependencies;
   for (let specifier of dependency.importSpecifiers) {
     const realDep = dependencyPathMap.dependencies.find((dep) => {
+      if (!dep.importSpecifiers) return false;
       return dep.importSpecifiers.find(depSpecifier => depSpecifier.name === specifier.name);
     });
     if (!realDep) {
       // this is not a link file as it doesn't import at least one specifier.
       break;
     }
-    dependencies.push({ file: realDep.relativePath, specifier });
+    const depImportSpecifier = realDep.importSpecifiers.find(depSpecifier => depSpecifier.name === specifier.name);
+    const importSpecifier = {
+      mainFile: specifier,
+      linkFile: depImportSpecifier
+    };
+    dependencies.push({ file: realDep.relativePath, importSpecifier });
   }
   return dependencies;
 }
@@ -185,26 +192,27 @@ function updatePathMapWithLinkFilesData(pathMap) {
   pathMap.forEach((file) => {
     if (!file.dependencies || !file.dependencies.length) return;
     file.dependencies.forEach((dependency) => {
-      
+
       if (!dependency.importSpecifiers || !dependency.importSpecifiers.length) {
         // importSpecifiers was not implemented for that language
-        return; 
+        return;
       }
       const dependencyPathMap = pathMap.find(file => file.file === dependency.resolvedDep);
-      if (!dependencyPathMap.dependencies || !dependencyPathMap.dependencies.length) return;
+      if (!dependencyPathMap || !dependencyPathMap.dependencies || !dependencyPathMap.dependencies.length) return;
       const dependenciesFromLinkFiles = getDependenciesFromLinkFileIfExists(dependency, dependencyPathMap);
       if (dependenciesFromLinkFiles.length) { // it is a link file
         dependency.linkFile = true;
         dependency.realDependencies = dependenciesFromLinkFiles;
       }
     });
-});
+  });
 }
 
 /**
  * remove link-files from the files array and add a new attribute 'linkFiles' to the tree
  */
 function updateTreeAccordingToLinkFiles(tree, pathMap) {
+  if (!pathMap) return; // currently pathMap is relevant for ES6 only
   updatePathMapWithLinkFilesData(pathMap);
   Object.keys(tree).forEach((mainFile) => {
     if (!tree[mainFile].files || !tree[mainFile].files.length) return;
