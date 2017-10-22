@@ -9,6 +9,15 @@ function composePath(componentRootFolder: string) {
   return path.join(componentRootFolder, PACKAGE_JSON);
 }
 
+function ConvertComponenstsToValidPackageNames(registryPrefix: string, bitDependencies: Object): Object {
+  const obj = {};
+  if (R.isEmpty(bitDependencies) || R.isNil(bitDependencies)) return obj;
+  Object.keys(bitDependencies).forEach(key => {
+    var name = key.replace(/\//g, '.');
+    obj[name] = `${registryPrefix}/${name}/-/${name}-${bitDependencies[key]}.tgz`;
+  });
+  return obj;
+}
 function hasExisting(componentRootFolder: string, throws?: boolean = false): boolean {
   const packageJsonPath = composePath(componentRootFolder);
   const exists = fs.pathExistsSync(packageJsonPath);
@@ -18,7 +27,7 @@ function hasExisting(componentRootFolder: string, throws?: boolean = false): boo
   return exists;
 }
 
-const PackageJsonPropsNames = ['name', 'version', 'homepage', 'main', 'dependencies', 'devDependencies', 'peerDependencies'];
+const PackageJsonPropsNames = ['name', 'version', 'homepage', 'main', 'dependencies', 'devDependencies', 'peerDependencies', 'license'];
 
 export type PackageJsonProps = {
   name?: string,
@@ -27,7 +36,9 @@ export type PackageJsonProps = {
   main?: string,
   dependencies?: Object,
   devDependencies?: Object,
-  peerDependencies?: Object
+  peerDependencies?: Object,
+  license?:string,
+  bitDependencies?: Object,
 };
 
 export default class PackageJson {
@@ -39,16 +50,20 @@ export default class PackageJson {
   devDependencies: Object;
   peerDependencies: Object;
   componentRootFolder: string; // path where to write the package.json
+  license: string;
 
-  constructor(componentRootFolder: string, { name, version, homepage, main, dependencies, devDependencies, peerDependencies }: PackageJsonProps) {
+
+
+  constructor(componentRootFolder: string, { name, version, homepage, main, dependencies, devDependencies, peerDependencies, license, registryPrefix, bitDependencies }: PackageJsonProps) {
     this.name = name;
     this.version = version;
     this.homepage = homepage;
     this.main = main;
-    this.dependencies = dependencies;
+    this.dependencies = Object.assign({}, dependencies, ConvertComponenstsToValidPackageNames(registryPrefix, bitDependencies));
     this.devDependencies = devDependencies;
     this.peerDependencies = peerDependencies;
     this.componentRootFolder = componentRootFolder;
+    this.license = license;
   }
 
   toPlainObject(): Object {
