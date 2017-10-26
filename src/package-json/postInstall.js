@@ -38,7 +38,7 @@ arr.forEach(linkMetaData => {
         fs.writeFileSync(filePath, linkMetaData.fileContent)
 })`;
 
-export default  function generatePostInstallScript (writeDir: string, linkMeta: Array<Object>) {
+export default function generatePostInstallScript(writeDir: string, linkMeta: Array<Object>) {
   const LinkArr = linkMeta.map(linkObj => new LinkData(linkObj));
   fs.writeFileSync(path.join(writeDir, postInstallScriptName), scriptTemplate(JSON.stringify(LinkArr)));
   return { postinstall : `node ${postInstallScriptName}` };
