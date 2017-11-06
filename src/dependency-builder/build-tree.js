@@ -4,9 +4,34 @@
 import parents from 'parents';
 import fs from 'fs';
 import path from 'path';
-// import findPackage from 'find-package';
 import R from 'ramda';
 import generateTree from './generate-tree-madge';
+
+export type Specifier = {
+  isDefault: boolean,
+  name: string
+}
+
+export type ImportSpecifier = {
+  mainFile: Specifier,
+  linkFile?: Specifier
+}
+
+export type LinkFile = {
+  file: string,
+  importSpecifiers: ImportSpecifier[]
+};
+
+export type Dependencies = {
+  files: string[],
+  packages?: Object,
+  importSpecifiers?: ImportSpecifier[],
+  linkFiles?: LinkFile[]
+}
+
+export type Tree = {
+  [main_file: string]: Dependencies
+}
 
 /**
  * Taken from this package (with some minor changes):
@@ -20,7 +45,6 @@ function findPath(dir) {
   for (i = 0; i < parentsArr.length; i++) {
     const config = `${parentsArr[i]}/package.json`;
     try {
-        // console.log('config', config);
       if (fs.lstatSync(config).isFile()) {
         return config;
       }
@@ -274,7 +298,7 @@ function updatePathMapWithLinkFilesData(pathMap) {
 /**
  * remove link-files from the files array and add a new attribute 'linkFiles' to the tree
  */
-function updateTreeAccordingToLinkFiles(tree, pathMap) {
+function updateTreeAccordingToLinkFiles(tree: Tree, pathMap) {
   if (!pathMap || !pathMap.length) return; // pathMap is relevant for supported languages only
   updatePathMapWithLinkFilesData(pathMap);
   Object.keys(tree).forEach((mainFile) => {
@@ -314,12 +338,13 @@ function updateTreeAccordingToLinkFiles(tree, pathMap) {
  * @param bindingPrefix
  * @return {Promise<{missing, tree}>}
  */
-export default async function getDependecyTree(baseDir: string, consumerPath: string, filePath: string, bindingPrefix: string ): Promise<*> {
+export default async function getDependecyTree(baseDir: string, consumerPath: string, filePath: string, bindingPrefix: string):
+  Promise<{ missing: Object, tree: Tree}> {
   const config = { baseDir, includeNpm: true, requireConfig: null, webpackConfig: null, visited: {}, nonExistent: [] };
   const result = generateTree([filePath], config);
   const { groups, foundedPackages } = groupMissings(result.skipped, baseDir, consumerPath);
   const relativeFilePath = path.relative(baseDir, filePath);
-  const tree = groupDependencyTree(result.tree, baseDir, bindingPrefix);
+  const tree: Tree = groupDependencyTree(result.tree, baseDir, bindingPrefix);
   // Merge manually found packages with madge founded packages
   if (foundedPackages && !R.isEmpty(foundedPackages)) {
     // Madge found packages so we need to merge them with the manual
