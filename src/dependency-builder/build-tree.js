@@ -237,7 +237,14 @@ function getDependenciesFromLinkFileIfExists(dependency: Object, dependencyPathM
       mainFile: specifier,
       linkFile: depImportSpecifier
     };
-    dependencies.push({ file: realDep.relativePath, importSpecifier });
+    // add to dependencies array
+    const file = realDep.relativePath;
+    const existingFile = dependencies.find(oneDependency => oneDependency.file === file);
+    if (existingFile) {
+      existingFile.importSpecifiers.push(importSpecifier);
+    } else {
+      dependencies.push({ file, importSpecifiers: [importSpecifier] });
+    }
   }
   return dependencies;
 }
@@ -268,13 +275,14 @@ function updatePathMapWithLinkFilesData(pathMap) {
  * remove link-files from the files array and add a new attribute 'linkFiles' to the tree
  */
 function updateTreeAccordingToLinkFiles(tree, pathMap) {
-  if (!pathMap || !pathMap.length) return; // currently pathMap is relevant for ES6 only
+  if (!pathMap || !pathMap.length) return; // pathMap is relevant for supported languages only
   updatePathMapWithLinkFilesData(pathMap);
   Object.keys(tree).forEach((mainFile) => {
     if (!tree[mainFile].files || !tree[mainFile].files.length) return;
     const mainFilePathMap = pathMap.find(file => file.relativePath === mainFile);
     if (!mainFilePathMap) return; // @todo: throw an error
     const linkFiles = [];
+    const importSpecifiers = [];
     tree[mainFile].files.forEach((dependency, key) => {
       const dependencyPathMap = mainFilePathMap.dependencies.find(file => file.relativePath === dependency);
       if (!dependencyPathMap) return; // @todo: throw an error
@@ -282,9 +290,19 @@ function updateTreeAccordingToLinkFiles(tree, pathMap) {
         const linkFile = { file: dependency, dependencies: dependencyPathMap.realDependencies };
         linkFiles.push(linkFile);
         tree[mainFile].files.splice(key, 1); // delete the linkFile from the files array, as it's not a real dependency
+      } else {
+        if (dependencyPathMap.importSpecifiers && dependencyPathMap.importSpecifiers.length) {
+          const depImportSpecifiers = dependencyPathMap.importSpecifiers.map(importSpecifier => {
+            return {
+              mainFile: importSpecifier
+            };
+          });
+          importSpecifiers.push({ file: dependency, importSpecifiers: depImportSpecifiers });
+        }
       }
     });
     if (linkFiles.length) tree[mainFile].linkFiles = linkFiles;
+    if (importSpecifiers.length) tree[mainFile].importSpecifiers = importSpecifiers;
   });
 }
 
