@@ -7,20 +7,48 @@ import path from 'path';
 import R from 'ramda';
 import generateTree from './generate-tree-madge';
 
+/**
+ * Import Specifier data.
+ * For example, `import foo from './bar' `, "foo" is the import-specifier and is default.
+ * Conversely, `import { foo } from './bar' `, here, "foo" is non-default.
+ */
 export type Specifier = {
   isDefault: boolean,
   name: string
 }
 
+/**
+ * ImportSpecifier are used later on to generate links from component to its dependencies.
+ * For example, a component might have a dependency: "import { foo } from './bar' ", when a link is generated, we use
+ * the import-specifier name, which is "foo" to generate the link correctly.
+ */
 export type ImportSpecifier = {
   mainFile: Specifier,
-  linkFile?: Specifier
+  linkFile?: Specifier // relevant only when the dependency is a link file (e.g. index.js which import and export the variable from other file)
 }
 
 export type LinkFile = {
   file: string,
   importSpecifiers: ImportSpecifier[]
 };
+
+export type PathMapDependency = {
+  dep: string, // dependency path as it has been received from dependency-tree lib
+  resolvedDep: string, // absolute path
+  relativePath: string, // path relative to consumer root
+  importSpecifiers: ImportSpecifier[],
+  linkFile?: boolean,
+  realDependencies?: LinkFile[]
+}
+
+/**
+ * PathMap is used to get the ImportSpecifiers from dependency-tree library
+ */
+export type PathMapItem = {
+  file: string,
+  dependencies: PathMapDependency[]
+}
+
 
 export type Dependencies = {
   files: string[],
@@ -244,7 +272,7 @@ function groupMissings(missings, cwd, consumerPath) {
 /**
  * if a dependency file is in fact a link file, get its real dependencies.
  */
-function getDependenciesFromLinkFileIfExists(dependency: Object, dependencyPathMap: Object): Object[] {
+function getDependenciesFromLinkFileIfExists(dependency: PathMapDependency, dependencyPathMap: PathMapItem): LinkFile[] {
   const dependencies = [];
   if (!dependency.importSpecifiers) return dependencies;
   for (let specifier of dependency.importSpecifiers) {
@@ -257,7 +285,7 @@ function getDependenciesFromLinkFileIfExists(dependency: Object, dependencyPathM
       break;
     }
     const depImportSpecifier = realDep.importSpecifiers.find(depSpecifier => depSpecifier.name === specifier.name);
-    const importSpecifier = {
+    const importSpecifier: ImportSpecifier = {
       mainFile: specifier,
       linkFile: depImportSpecifier
     };
@@ -276,12 +304,12 @@ function getDependenciesFromLinkFileIfExists(dependency: Object, dependencyPathM
 /**
  * mark dependencies that are link-files as such. Also, add the data of the real dependencies
  */
-function updatePathMapWithLinkFilesData(pathMap) {
-  pathMap.forEach((file) => {
+function updatePathMapWithLinkFilesData(pathMap: PathMapItem[]): void {
+  pathMap.forEach((file: PathMapItem) => {
     if (!file.dependencies || !file.dependencies.length) return;
-    file.dependencies.forEach((dependency) => {
+    file.dependencies.forEach((dependency: PathMapDependency) => {
       if (!dependency.importSpecifiers || !dependency.importSpecifiers.length) {
-        // importSpecifiers was not implemented for that language
+        // importSpecifiers was not implemented for this language
         return;
       }
       const dependencyPathMap = pathMap.find(file => file.file === dependency.resolvedDep);
@@ -298,7 +326,7 @@ function updatePathMapWithLinkFilesData(pathMap) {
 /**
  * remove link-files from the files array and add a new attribute 'linkFiles' to the tree
  */
-function updateTreeAccordingToLinkFiles(tree: Tree, pathMap) {
+function updateTreeWithLinkFilesAndImportSpecifiers(tree: Tree, pathMap: PathMapItem[]): void {
   if (!pathMap || !pathMap.length) return; // pathMap is relevant for supported languages only
   updatePathMapWithLinkFilesData(pathMap);
   Object.keys(tree).forEach((mainFile) => {
@@ -355,6 +383,6 @@ export default async function getDependecyTree(baseDir: string, consumerPath: st
       tree[relativeFilePath].packages = foundedPackages;
     }
   }
-  updateTreeAccordingToLinkFiles(tree, result.pathMap);
+  updateTreeWithLinkFilesAndImportSpecifiers(tree, result.pathMap);
   return { missing: groups, tree };
 }
