@@ -6,7 +6,6 @@ const createTemplate = require('./postInstallTemplate');
 type LinkProps = {
   packagePath: string,
   packageName: string,
-  fileContent: string
 };
 class LinkData {
   packagePath: string;
