@@ -6,7 +6,7 @@ import fs from 'fs';
 import path from 'path';
 import R from 'ramda';
 import generateTree from './generate-tree-madge';
-
+import PackageJson from '../package-json/package-json';
 /**
  * Import Specifier data.
  * For example, `import foo from './bar' `, "foo" is the import-specifier and is default.
@@ -370,6 +370,7 @@ function updateTreeWithLinkFilesAndImportSpecifiers(tree: Tree, pathMap: PathMap
  */
 export default async function getDependencyTree(baseDir: string, consumerPath: string, filePaths: string[], bindingPrefix: string):
   Promise<{ missing: Object, tree: Tree}> {
+  const packageJson = await PackageJson.load(consumerPath);
   const config = { baseDir, includeNpm: true, requireConfig: null, webpackConfig: null, visited: {}, nonExistent: [] };
   const result = generateTree(filePaths, config);
   const { groups, foundPackages } = groupMissing(result.skipped, baseDir, consumerPath, bindingPrefix);
@@ -387,6 +388,7 @@ export default async function getDependencyTree(baseDir: string, consumerPath: s
       }
     });
   }
+  groups.packages = groups.packages.filter(packageName => !(packageName in packageJson.dependencies))
   updateTreeWithLinkFilesAndImportSpecifiers(tree, result.pathMap);
   return { missing: groups, tree };
 }
