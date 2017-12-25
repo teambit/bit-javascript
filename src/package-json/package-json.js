@@ -108,10 +108,9 @@ export default class PackageJson {
     return new PackageJson(componentRootFolder, object);
   }
 
-  static load(componentRootFolder: string): Promise<PackageJson> {
-    const THROWS = true;
-    hasExisting(componentRootFolder, THROWS);
-    return fs.readJson(composePath(componentRootFolder));
+  static load(componentRootFolder: string, throws: boolean = true): Promise<PackageJson> {
+    if (!hasExisting(componentRootFolder, throws)) return ;
+    return fs.readJson(composePath(componentRootFolder), { throws: false });
   }
 
 }

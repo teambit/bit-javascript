@@ -388,7 +388,7 @@ export default async function getDependencyTree(baseDir: string, consumerPath: s
       }
     });
   }
-  groups.packages = groups.packages.filter(packageName => !(packageName in packageJson.dependencies))
+  groups.packages = packageJson ? groups.packages.filter(packageName => !(packageName in packageJson.dependencies)) : groups.packages;
   updateTreeWithLinkFilesAndImportSpecifiers(tree, result.pathMap);
   return { missing: groups, tree };
 }
