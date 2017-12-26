@@ -1,6 +1,7 @@
 /** @flow */
 import fs from 'fs-extra';
 import R from 'ramda';
+import parents from 'parents';
 import path from 'path';
 import { PackageJsonAlreadyExists, PackageJsonNotFound } from '../exceptions';
 import { PACKAGE_JSON } from '../constants';
@@ -111,6 +112,48 @@ export default class PackageJson {
   static load(componentRootFolder: string, throws: boolean = true): Promise<PackageJson> {
     if (!hasExisting(componentRootFolder, throws)) return ;
     return fs.readJson(composePath(componentRootFolder), { throws: false });
+  }
+
+  /**
+   * Taken from this package (with some minor changes):
+   * https://www.npmjs.com/package/find-package
+   * https://github.com/jalba/find-package
+   *
+   */
+  static findPath(dir) {
+    const parentsArr = parents(dir);
+    let i;
+    for (i = 0; i < parentsArr.length; i++) {
+      const config = `${parentsArr[i]}/package.json`;
+      try {
+        if (fs.lstatSync(config).isFile()) {
+          return config;
+        }
+      } catch (e) {}
+    }
+    return null;
+  }
+
+  /**
+   * Taken from this package (with some minor changes):
+   * https://www.npmjs.com/package/find-package
+   * https://github.com/jalba/find-package
+   *
+   */
+  static findPackage(dir, addPaths) {
+    const pathToConfig = this.findPath(dir);
+    let configJSON = null;
+    if (pathToConfig !== null) configJSON = require(pathToConfig);
+    if (configJSON && addPaths) {
+      configJSON.paths = {
+        relative: path.relative(dir, pathToConfig),
+        absolute: pathToConfig,
+      };
+    } else if (configJSON !== null) {
+      delete configJSON.paths;
+    }
+
+    return configJSON;
   }
 
 }

@@ -1,7 +1,6 @@
 // @flow
 // TODO: This should be exported as a bit component
 
-import parents from 'parents';
 import fs from 'fs';
 import path from 'path';
 import R from 'ramda';
@@ -61,47 +60,6 @@ export type Tree = {
   [main_file: string]: Dependencies
 }
 
-/**
- * Taken from this package (with some minor changes):
- * https://www.npmjs.com/package/find-package
- * https://github.com/jalba/find-package
- *
- */
-function findPath(dir) {
-  const parentsArr = parents(dir);
-  let i;
-  for (i = 0; i < parentsArr.length; i++) {
-    const config = `${parentsArr[i]}/package.json`;
-    try {
-      if (fs.lstatSync(config).isFile()) {
-        return config;
-      }
-    } catch (e) {}
-  }
-  return null;
-}
-
-/**
- * Taken from this package (with some minor changes):
- * https://www.npmjs.com/package/find-package
- * https://github.com/jalba/find-package
- *
- */
-function findPackage(dir, addPaths) {
-  const pathToConfig = findPath(dir);
-  let configJSON = null;
-  if (pathToConfig !== null) configJSON = require(pathToConfig);
-  if (configJSON && addPaths) {
-    configJSON.paths = {
-      relative: path.relative(dir, pathToConfig),
-      absolute: pathToConfig,
-    };
-  } else if (configJSON !== null) {
-    delete configJSON.paths;
-  }
-
-  return configJSON;
-}
 
 /**
  * Group dependencies by types (files, bits, packages)
@@ -127,7 +85,7 @@ function resolveNodePackage(cwd, packageFullPath) {
   // We are doing this, because the package.json insisde the package dir contain exact version
   // And the component/consumer package.json might contain semver like ^ or ~
   // We want to have this semver as dependency and not the exact version, otherwise it will be considered as modified all the time
-  const packageJsonInfo = findPackage(cwd);
+  const packageJsonInfo = PackageJson.findPackage(cwd);
   if (packageJsonInfo) {
     // The +1 is for the / after the node_modules, we didn't enter it into the NODE_MODULES const because it makes problems on windows
     const packageRelativePath = packageFullPath.substring(packageFullPath.lastIndexOf(NODE_MODULES) + NODE_MODULES.length + 1, packageFullPath.length);
@@ -142,7 +100,7 @@ function resolveNodePackage(cwd, packageFullPath) {
   }
   // Get the package relative path to the node_modules dir
 
-  const packageInfo = findPackage(packageFullPath);
+  const packageInfo = PackageJson.findPackage(packageFullPath);
   if (!packageInfo) return null; // when running 'bitjs get-dependencies' command, packageInfo is sometimes empty
   result[packageInfo.name] = packageInfo.version;
   return result;
@@ -370,7 +328,7 @@ function updateTreeWithLinkFilesAndImportSpecifiers(tree: Tree, pathMap: PathMap
  */
 export default async function getDependencyTree(baseDir: string, consumerPath: string, filePaths: string[], bindingPrefix: string):
   Promise<{ missing: Object, tree: Tree}> {
-  const packageJson = await PackageJson.load(consumerPath);
+  const packageJson = PackageJson.findPackage(consumerPath);
   const config = { baseDir, includeNpm: true, requireConfig: null, webpackConfig: null, visited: {}, nonExistent: [] };
   const result = generateTree(filePaths, config);
   const { groups, foundPackages } = groupMissing(result.skipped, baseDir, consumerPath, bindingPrefix);
