@@ -197,6 +197,7 @@ function resolveModulePath(nmPath, workingDir, root) {
  * @returns new object with grouped missing
  */
 function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
+  const packageJson = PackageJson.findPackage(cwd);
   /**
    * Group missing dependencies by types (files, bits, packages)
    * @param {Array} missing list of missing paths to group
@@ -221,10 +222,14 @@ function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
       return missingPackages.push(packageName);
     }
     const packageWithVersion = resolveNodePackage(cwd, resolvedPath);
+
     return packageWithVersion ? Object.assign(foundPackages, packageWithVersion) :
                                 missingPackages.push(packageWithVersion);
   });
-  groups.packages = missingPackages;
+
+
+  groups.packages = packageJson ? missingPackages.filter(packageName => !(packageName in packageJson.dependencies)) : missingPackages;
+  //groups.packages = missingPackages;
 
   return { groups, foundPackages };
 }
@@ -328,7 +333,6 @@ function updateTreeWithLinkFilesAndImportSpecifiers(tree: Tree, pathMap: PathMap
  */
 export default async function getDependencyTree(baseDir: string, consumerPath: string, filePaths: string[], bindingPrefix: string):
   Promise<{ missing: Object, tree: Tree}> {
-  const packageJson = PackageJson.findPackage(consumerPath);
   const config = { baseDir, includeNpm: true, requireConfig: null, webpackConfig: null, visited: {}, nonExistent: [] };
   const result = generateTree(filePaths, config);
   const { groups, foundPackages } = groupMissing(result.skipped, baseDir, consumerPath, bindingPrefix);
@@ -346,7 +350,7 @@ export default async function getDependencyTree(baseDir: string, consumerPath: s
       }
     });
   }
-  groups.packages = packageJson ? groups.packages.filter(packageName => !(packageName in packageJson.dependencies)) : groups.packages;
+
   updateTreeWithLinkFilesAndImportSpecifiers(tree, result.pathMap);
   return { missing: groups, tree };
 }
