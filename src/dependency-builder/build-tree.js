@@ -245,7 +245,7 @@ function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
     return packageWithVersion ? Object.assign(foundPackages, packageWithVersion) :
                                 missingPackages.push(packageWithVersion);
   });
-  const { foundP, missingP } = resolvePackageDependeces(cwd,missingPackages);
+  const { foundP, missingP } = resolvePackageDependeces(cwd, missingPackages);
   groups.packages = missingP;
   return { groups, foundPackages: Object.assign(foundPackages, foundP) };
 }
