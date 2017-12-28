@@ -191,9 +191,8 @@ function resolveModulePath(nmPath, workingDir, root) {
 /**
  * Resolve package dependencies from package.json according to package names
  *
- * @param {string} cwd
+ * @param {Object} packageJson
  * @param {string []} packagesNames
- * @param {string} consumerPath
  * @returns new object with found and missing
  */
 function findPackagesInPackageJson (packageJson: Object, packagesNames: string[] ) {
