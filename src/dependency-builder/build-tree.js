@@ -189,22 +189,22 @@ function resolveModulePath(nmPath, workingDir, root) {
 }
 
 /**
- * Resolve package dependencies from package.json
+ * Resolve package dependencies from package.json according to package names
  *
  * @param {string} cwd
- * @param {string []} missing
+ * @param {string []} packagesNames
  * @param {string} consumerPath
  * @returns new object with found and missing
  */
-function resolvePackageDependeces (cwd: string, missing: string[] ) {
-  const { dependencies, devDependencies, peerDependencies } = PackageJson.findPackage(cwd);
+function findPackagesInPackageJson (packageJson: Object, packagesNames: string[] ) {
+  const { dependencies, devDependencies, peerDependencies } = packageJson;
   const mergedDependencies = Object.assign(dependencies, devDependencies, peerDependencies)
-  if (missing && missing.length && !R.isNil(dependencies)) {
-    const [foundP, missingP] = partition(missing, item => item in mergedDependencies);
-    foundP.forEach(pack => foundP[pack] = mergedDependencies[pack] )
-    return { foundP, missingP };
+  if (packagesNames && packagesNames.length && !R.isNil(mergedDependencies)) {
+    const [foundPackages, missingPackages] = partition(packagesNames, item => item in mergedDependencies);
+    foundPackages.forEach(pack => foundPackages[pack] = mergedDependencies[pack] )
+    return { foundPackages, missingPackages };
   }
-  return { foundP: {}, missingP: missing}
+  return { foundPackages: {}, missingPackages: packagesNames}
 }
 /**
  * Run over each entry in the missing array and transform the missing from list of paths
@@ -217,6 +217,8 @@ function resolvePackageDependeces (cwd: string, missing: string[] ) {
  * @returns new object with grouped missing
  */
 function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
+  const packageJson = PackageJson.findPackage(cwd);
+
   /**
    * Group missing dependencies by types (files, bits, packages)
    * @param {Array} missing list of missing paths to group
@@ -245,9 +247,9 @@ function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
     return packageWithVersion ? Object.assign(foundPackages, packageWithVersion) :
                                 missingPackages.push(packageWithVersion);
   });
-  const { foundP, missingP } = resolvePackageDependeces(cwd, missingPackages);
-  groups.packages = missingP;
-  return { groups, foundPackages: Object.assign(foundPackages, foundP) };
+  const result = findPackagesInPackageJson(packageJson, missingPackages);
+  groups.packages = result.missingPackages;
+  return { groups, foundPackages: Object.assign(foundPackages, result.foundPackages) };
 }
 
 /**
