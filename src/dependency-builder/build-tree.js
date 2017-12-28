@@ -6,6 +6,8 @@ import path from 'path';
 import R from 'ramda';
 import generateTree from './generate-tree-madge';
 import PackageJson from '../package-json/package-json';
+import partition from 'lodash.partition';
+
 /**
  * Import Specifier data.
  * For example, `import foo from './bar' `, "foo" is the import-specifier and is default.
@@ -197,7 +199,7 @@ function resolveModulePath(nmPath, workingDir, root) {
  * @returns new object with grouped missing
  */
 function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
-  const packageJson = PackageJson.findPackage(cwd);
+  const { dependencies } = PackageJson.findPackage(cwd);
   /**
    * Group missing dependencies by types (files, bits, packages)
    * @param {Array} missing list of missing paths to group
@@ -226,11 +228,13 @@ function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
     return packageWithVersion ? Object.assign(foundPackages, packageWithVersion) :
                                 missingPackages.push(packageWithVersion);
   });
-
-
-  groups.packages = packageJson ? missingPackages.filter(packageName => !(packageName in packageJson.dependencies)) : missingPackages;
-  //groups.packages = missingPackages;
-
+  if (!R.isNil(dependencies)) {
+    const [fPackages, mPackages] = partition(missingPackages, item => item in dependencies);
+    fPackages.forEach(pack => foundPackages[pack] = dependencies[pack])
+    groups.packages = mPackages;
+  } else {
+    groups.packages = missingPackages
+  }
   return { groups, foundPackages };
 }
 
