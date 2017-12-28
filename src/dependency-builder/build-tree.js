@@ -189,6 +189,24 @@ function resolveModulePath(nmPath, workingDir, root) {
 }
 
 /**
+ * Resolve package dependencies from package.json
+ *
+ * @param {string} cwd
+ * @param {string []} missing
+ * @param {string} consumerPath
+ * @returns new object with found and missing
+ */
+function resolvePackageDependeces (cwd: string, missing: string[] ) {
+  const { dependencies, devDependencies, peerDependencies } = PackageJson.findPackage(cwd);
+  const mergedDependencies = Object.assign(dependencies, devDependencies, peerDependencies)
+  if (missing && missing.length && !R.isNil(dependencies)) {
+    const [foundP, missingP] = partition(missing, item => item in mergedDependencies);
+    foundP.forEach(pack => foundP[pack] = mergedDependencies[pack] )
+    return { foundP, missingP };
+  }
+  return { foundP: {}, missingP: missing}
+}
+/**
  * Run over each entry in the missing array and transform the missing from list of paths
  * to object with missing types
  *
@@ -199,7 +217,6 @@ function resolveModulePath(nmPath, workingDir, root) {
  * @returns new object with grouped missing
  */
 function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
-  const { dependencies } = PackageJson.findPackage(cwd);
   /**
    * Group missing dependencies by types (files, bits, packages)
    * @param {Array} missing list of missing paths to group
@@ -228,14 +245,9 @@ function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
     return packageWithVersion ? Object.assign(foundPackages, packageWithVersion) :
                                 missingPackages.push(packageWithVersion);
   });
-  if (!R.isNil(dependencies)) {
-    const [fPackages, mPackages] = partition(missingPackages, item => item in dependencies);
-    fPackages.forEach(pack => foundPackages[pack] = dependencies[pack])
-    groups.packages = mPackages;
-  } else {
-    groups.packages = missingPackages
-  }
-  return { groups, foundPackages };
+  const { foundP, missingP } = resolvePackageDependeces(cwd,missingPackages);
+  groups.packages = missingP;
+  return { groups, foundPackages: Object.assign(foundPackages, foundP) };
 }
 
 /**
