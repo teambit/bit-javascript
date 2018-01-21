@@ -188,9 +188,9 @@ export default class PackageJson {
    * attribute. Nothing more, nothing less.
    */
   static async addComponentsIntoExistingPackageJson(rootDir: string, components: Array, registryPrefix: string) {
-    const packageJson = await this.getPackageJson(rootDir);
+-    const packageJson = (await PackageJson.getPackageJson(rootDir)) || { dependencies: {} } ;
     packageJson.dependencies = Object.assign({}, packageJson.dependencies, convertComponentsToValidPackageNames(registryPrefix, components));
-    await this.saveRawObject(packageJson);
+    await PackageJson.saveRawObject(rootDir, packageJson);
   }
   /*
    * For an existing package.json file of the root project, we don't want to do any change, other than what needed.
@@ -200,34 +200,36 @@ export default class PackageJson {
    * adds workspaces with private flag if dosent exist.
    */
   static async addWorkspacesToPackageJson(rootDir: string, componentsDefaultDirectory: string, dependenciesDirectory: string, customImportPath: ?string ) {
-    const pkg = await this.getPackageJson();
+    const pkg = await PackageJson.getPackageJson(rootDir) ;
     pkg.private = pkg.private || true;
     const workSpaces = pkg.workspaces || [];
     workSpaces.push(dependenciesDirectory);
     workSpaces.push(componentsDefaultDirectory);
     if(customImportPath) workSpaces.push(customImportPath);
     pkg.workspaces = R.uniq(workSpaces);
-    await this.saveRawObject(pkg);
+    await PackageJson.saveRawObject(rootDir, pkg);
   }
 
   /*
    * remove workspaces dir from workspace in package.json with changing other fields in package.json
    */
   static async removeComponentsFromWorkspaces(rootDir: string, pathsTOoRemove: string[] ) {
-    const pkg = await this.getPackageJson();
+    const pkg = await PackageJson.getPackageJson(rootDir);
     let workSpaces = pkg.workspaces || [];
     pkg.workspaces = workSpaces.filter(folder => !pathsTOoRemove.includes(folder))
-    await this.saveRawObject(pkg);
+    await PackageJson.saveRawObject(rootDir, pkg);
   }
 
   /*
    * remove components from package.json dependencies
    */
   static async removeComponentsFromDependencies(rootDir: string, registryPrefix, componentIds: string[] ) {
-    const pkg = await this.getPackageJson();
-    componentIds.forEach(id => {
-      delete pkg.dependencies[convertComponentsIdToValidPackageName(registryPrefix, id)]
-    });
-    await this.saveRawObject(pkg);
+    const pkg = await PackageJson.getPackageJson(rootDir);
+    if (pkg && pkg.dependencies) {
+      componentIds.forEach(id => {
+        delete pkg.dependencies[convertComponentsIdToValidPackageName(registryPrefix, id)]
+      });
+      await PackageJson.saveRawObject(rootDir, pkg);
+    }
   }
 }
