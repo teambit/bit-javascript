@@ -9,12 +9,14 @@ import { PACKAGE_JSON } from '../constants';
 function composePath(componentRootFolder: string) {
   return path.join(componentRootFolder, PACKAGE_JSON);
 }
-
+function convertComponentsIdToValidPackageName(registryPrefix: string, id: string): Object {
+  return `${registryPrefix}/${id.replace(/\//g, '.')}`;
+}
 function convertComponentsToValidPackageNames(registryPrefix: string, bitDependencies: Object): Object {
   const obj = {};
   if (R.isEmpty(bitDependencies) || R.isNil(bitDependencies)) return obj;
   Object.keys(bitDependencies).forEach((key) => {
-    const name = `${registryPrefix}/${key.replace(/\//g, '.')}`;
+    const name = convertComponentsIdToValidPackageName(registryPrefix, key);
     obj[name] = bitDependencies[key];
   });
   return obj;
@@ -200,6 +202,39 @@ export default class PackageJson {
     workSpaces.push(componentsDefaultDirectory);
     if(customImportPath) workSpaces.push(customImportPath);
     pkg.workspaces = R.uniq(workSpaces);
+    await saveRawObject(pkg);
+  }
+
+  /*
+   * remove workspaces dir from workspace in package.json with changing other fields in package.json
+   */
+  static async removeComponentsFromWorkspaces(rootDir: string, pathsTOoRemove: string[] ) {
+    const getRawObject = () => fs.readJson(composePath(rootDir));
+    const saveRawObject = obj => fs.outputJSON(composePath(rootDir), obj, { spaces: 2 });
+    const getPackageJson = async () => {
+      const exist = PackageJson.hasExisting(rootDir);
+      return exist ? getRawObject() : { workspaces: [], private: true };
+    };
+    const pkg = await getPackageJson();
+    let workSpaces = pkg.workspaces || [];
+    pkg.workspaces = workSpaces.filter(folder => !pathsTOoRemove.includes(folder))
+    await saveRawObject(pkg);
+  }
+
+  /*
+   * remove components from package.json dependencies
+   */
+  static async removeComponentsFromDependencies(rootDir: string, registryPrefix, componentIds: string[] ) {
+    const getRawObject = () => fs.readJson(composePath(rootDir));
+    const saveRawObject = obj => fs.outputJSON(composePath(rootDir), obj, { spaces: 2 });
+    const getPackageJson = async () => {
+      const exist = PackageJson.hasExisting(rootDir);
+      return exist ? getRawObject() : { workspaces: [], private: true };
+    };
+    const pkg = await getPackageJson();
+    componentIds.forEach(id => {
+      delete pkg.dependencies[convertComponentsIdToValidPackageName(registryPrefix, id)]
+    });
     await saveRawObject(pkg);
   }
 }
