@@ -188,7 +188,7 @@ export default class PackageJson {
    * attribute. Nothing more, nothing less.
    */
   static async addComponentsIntoExistingPackageJson(rootDir: string, components: Array, registryPrefix: string) {
--    const packageJson = (await PackageJson.getPackageJson(rootDir)) || { dependencies: {} } ;
+    const packageJson = (await PackageJson.getPackageJson(rootDir)) || { dependencies: {} } ;
     packageJson.dependencies = Object.assign({}, packageJson.dependencies, convertComponentsToValidPackageNames(registryPrefix, components));
     await PackageJson.saveRawObject(rootDir, packageJson);
   }
@@ -200,13 +200,13 @@ export default class PackageJson {
    * adds workspaces with private flag if dosent exist.
    */
   static async addWorkspacesToPackageJson(rootDir: string, componentsDefaultDirectory: string, dependenciesDirectory: string, customImportPath: ?string ) {
-    const pkg = await PackageJson.getPackageJson(rootDir) ;
-    pkg.private = pkg.private || true;
+    const pkg = (await PackageJson.getPackageJson(rootDir)) || {} ;
     const workSpaces = pkg.workspaces || [];
     workSpaces.push(dependenciesDirectory);
     workSpaces.push(componentsDefaultDirectory);
     if(customImportPath) workSpaces.push(customImportPath);
     pkg.workspaces = R.uniq(workSpaces);
+    pkg.private = pkg.workspaces ? true : false;
     await PackageJson.saveRawObject(rootDir, pkg);
   }
 
@@ -214,7 +214,7 @@ export default class PackageJson {
    * remove workspaces dir from workspace in package.json with changing other fields in package.json
    */
   static async removeComponentsFromWorkspaces(rootDir: string, pathsTOoRemove: string[] ) {
-    const pkg = await PackageJson.getPackageJson(rootDir);
+    const pkg = (await PackageJson.getPackageJson(rootDir)) || {};
     let workSpaces = pkg.workspaces || [];
     pkg.workspaces = workSpaces.filter(folder => !pathsTOoRemove.includes(folder))
     await PackageJson.saveRawObject(rootDir, pkg);
