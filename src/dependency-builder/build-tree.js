@@ -233,25 +233,29 @@ function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
     if (item.startsWith(`${bindingPrefix}/`) || item.startsWith(`${DEFAULT_BINDINGS_PREFIX}/`)) return 'bits';
     return item.startsWith('.') ? 'files' : 'packages';
   });
-  const groups = byPathType(missing, bindingPrefix);
-  const packages = groups.packages ? groups.packages.map(resolvePackageNameByPath) : [];
+  const groups = Object.keys(missing).map(key => Object.assign({originFile: path.relative(cwd, key)},byPathType(missing[key], bindingPrefix)));
+  groups.forEach(group => {
+    if (group.packages) group.packages = group.packages.map(resolvePackageNameByPath)
+  });
   // This is a hack to solve problems that madge has with packages for type script files
   // It see them as missing even if they are exists
   const foundPackages = {};
-  const missingPackages = [];
-  packages.forEach((packageName) => {
-    // Don't add the same package twice
-    if (R.contains(packageName, missingPackages)) return;
-    const resolvedPath = resolveModulePath(packageName, cwd, consumerPath);
-    if (!resolvedPath) {
-      return missingPackages.push(packageName);
-    }
-    const packageWithVersion = resolveNodePackage(cwd, resolvedPath);
+  groups.forEach(group => {
+    const missingPackages = [];
+    if(group.packages) group.packages.forEach((packageName) => {
+      // Don't add the same package twice
+      if (R.contains(packageName, missingPackages)) return;
+      const resolvedPath = resolveModulePath(packageName, cwd, consumerPath);
+      if (!resolvedPath) {
+        return missingPackages.push(packageName);
+      }
+      const packageWithVersion = resolveNodePackage(cwd, resolvedPath);
 
-    return packageWithVersion ? Object.assign(foundPackages, packageWithVersion) :
-                                missingPackages.push(packageWithVersion);
-  });
-  groups.packages = missingPackages;
+      return packageWithVersion ? Object.assign(foundPackages, packageWithVersion) :
+        missingPackages.push(packageWithVersion);
+    });
+    group.packages = missingPackages;
+  })
 
   // temporarily disable this functionality since it cause this bugs:
   // https://github.com/teambit/bit/issues/635
