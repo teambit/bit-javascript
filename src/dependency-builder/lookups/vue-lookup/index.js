@@ -3,7 +3,7 @@ const path = require('path');
 const compiler = require('vue-template-compiler');
 
 module.exports = function(partial, filename, directory, config, webpackConfig, configPath, ast, isScript) {
-  const cabinet = require('filing-cabinet');
+  const cabinet = require('../../filing-cabinet');
 
   const fileContent = fs.readFileSync(filename);
   const { script, styles } = compiler.parseComponent(fileContent.toString(), { pad: 'line' });

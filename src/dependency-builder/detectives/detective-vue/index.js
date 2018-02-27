@@ -3,7 +3,7 @@ const compiler = require('vue-template-compiler');
 const flatten = require('lodash.flatten');
 
 module.exports = function(src, options = {}) {
-  const precinct = require('precinct');
+  const precinct = require('../../precinct');
   options.useContent = true;
   options.es6 = { mixedImports : true };
   const { script, styles } = compiler.parseComponent(src, { pad: 'line' });
