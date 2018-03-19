@@ -2,15 +2,11 @@ const fs = require('fs');
 const path = require('path');
 const compiler = require('vue-template-compiler');
 
+const DEFAULT_SCRIPT_LANG = 'js';
+const DEFAULT_STYLE_LANG = 'scss';
+
 const languageMap = {
-    js: "js",
-    ts: "ts",
-    jsx: "jsx",
-    tsx: "tsx",
     css: "scss",
-    scss: "scss",
-    sass: "sass",
-    less: "less",
     stylus: "styl"
 }
 module.exports = function(partial, filename, directory, config, webpackConfig, configPath, ast, isScript) {
@@ -19,7 +15,7 @@ module.exports = function(partial, filename, directory, config, webpackConfig, c
   const fileContent = fs.readFileSync(filename);
   const { script, styles } = compiler.parseComponent(fileContent.toString(), { pad: 'line' });
   if (isScript) {
-    const scriptExt = script.lang ? languageMap[script.lang] || 'js' : 'js';
+    const scriptExt = script.lang ? languageMap[script.lang] || DEFAULT_SCRIPT_LANG : DEFAULT_SCRIPT_LANG;
     return cabinet({
       partial: partial,
       filename: filename,
@@ -29,7 +25,7 @@ module.exports = function(partial, filename, directory, config, webpackConfig, c
     });
   }
   const stylesResult = styles.map(style => {
-    const styleExt = languageMap[style.lang] || style.lang;
+    const styleExt = style.lang ? languageMap[style.lang] || DEFAULT_STYLE_LANG : DEFAULT_STYLE_LANG ;
     return cabinet({
       partial: partial,
       filename: `${path.dirname(filename)}/${path.parse(filename).name}.${styleExt}`,
