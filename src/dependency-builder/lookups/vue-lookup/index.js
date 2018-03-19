@@ -15,7 +15,7 @@ module.exports = function(partial, filename, directory, config, webpackConfig, c
   const fileContent = fs.readFileSync(filename);
   const { script, styles } = compiler.parseComponent(fileContent.toString(), { pad: 'line' });
   if (isScript) {
-    const scriptExt = script.lang ? languageMap[script.lang] || DEFAULT_SCRIPT_LANG : DEFAULT_SCRIPT_LANG;
+    const scriptExt = script.lang ? languageMap[script.lang] || script.lang : DEFAULT_SCRIPT_LANG;
     return cabinet({
       partial: partial,
       filename: filename,
@@ -25,7 +25,7 @@ module.exports = function(partial, filename, directory, config, webpackConfig, c
     });
   }
   const stylesResult = styles.map(style => {
-    const styleExt = style.lang ? languageMap[style.lang] || DEFAULT_STYLE_LANG : DEFAULT_STYLE_LANG ;
+    const styleExt = style.lang ? languageMap[style.lang] || style.lang : DEFAULT_STYLE_LANG ;
     return cabinet({
       partial: partial,
       filename: `${path.dirname(filename)}/${path.parse(filename).name}.${styleExt}`,
