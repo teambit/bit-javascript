@@ -28,7 +28,7 @@ module.exports = function(partial, filename, directory, config, webpackConfig, c
     const styleExt = style.lang ? languageMap[style.lang] || style.lang : DEFAULT_STYLE_LANG ;
     return cabinet({
       partial: partial,
-      filename: `${path.dirname(filename)}/${path.parse(filename).name}.${styleExt}`,
+      filename: `${path.join(path.dirname(filename), path.parse(filename).name)}.${styleExt}`,
       directory: path.dirname(filename),
       content: style.content,
       ext: `.${styleExt}`

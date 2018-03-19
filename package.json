@@ -8,7 +8,7 @@
     "test-watch": "jest --watch",
     "clean": "rm -rf dist",
     "build": "babel src -d dist  --source-maps",
-    "watch": "babel --watch src -d dist --source-maps",
+    "watch": "babel --watch src -d /Users/Amit/cocycles/bit/bit/node_modules/bit-javascript/dist --source-maps",
     "prepublishOnly": "npm run clean && npm run build",
     "build-debug": "babel src -d dist --source-maps"
   },
