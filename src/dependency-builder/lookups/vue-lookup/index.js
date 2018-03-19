@@ -2,13 +2,24 @@ const fs = require('fs');
 const path = require('path');
 const compiler = require('vue-template-compiler');
 
+const languageMap = {
+    js: "js",
+    ts: "ts",
+    jsx: "jsx",
+    tsx: "tsx",
+    css: "scss",
+    scss: "scss",
+    sass: "sass",
+    less: "less",
+    stylus: "styl"
+}
 module.exports = function(partial, filename, directory, config, webpackConfig, configPath, ast, isScript) {
   const cabinet = require('../../filing-cabinet');
 
   const fileContent = fs.readFileSync(filename);
   const { script, styles } = compiler.parseComponent(fileContent.toString(), { pad: 'line' });
   if (isScript) {
-    const scriptExt = script.lang || 'js';
+    const scriptExt = script.lang ? languageMap[script.lang] || 'js' : 'js';
     return cabinet({
       partial: partial,
       filename: filename,
@@ -18,10 +29,10 @@ module.exports = function(partial, filename, directory, config, webpackConfig, c
     });
   }
   const stylesResult = styles.map(style => {
-    const styleExt = (style.lang === 'css' || !style.lang) ? 'scss'  : style.lang;
+    const styleExt = languageMap[style.lang] || style.lang;
     return cabinet({
       partial: partial,
-      filename: `${path.parse(filename).name}.${styleExt}`,
+      filename: `${path.dirname(filename)}/${path.parse(filename).name}.${styleExt}`,
       directory: path.dirname(filename),
       content: style.content,
       ext: `.${styleExt}`
