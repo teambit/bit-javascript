@@ -1,6 +1,6 @@
 /** @flow */
-import login from './registry';
+import npmLogin from './registry';
 
 export {
- login,
+  npmLogin,
 };

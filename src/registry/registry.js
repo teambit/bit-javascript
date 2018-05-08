@@ -38,7 +38,7 @@ function mergeOrCreateConfig(token: string, url: string, config: Array<Object> =
   return config;
 }
 
-export default function login(token: string, pathToNpmrc: string, url: string): void {
+export default function npmLogin(token: string, pathToNpmrc: string, url: string): void {
   const rcPath = findrc(pathToNpmrc);
   const rcConfig = (fs.existsSync(rcPath)) ? mergeOrCreateConfig(token, url, iniBuilder.parse(fs.readFileSync(rcPath, 'utf-8'))) : mergeOrCreateConfig(token, url);
   fs.writeFileSync(rcPath, iniBuilder.serialize(rcConfig));
