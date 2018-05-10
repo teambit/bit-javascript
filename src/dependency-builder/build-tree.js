@@ -384,8 +384,8 @@ function updateTreeWithLinkFilesAndImportSpecifiers(tree: Tree, pathMap: PathMap
  * @param bindingPrefix
  * @return {Promise<{missing, tree}>}
  */
-export async function getDependencyTree(baseDir: string, consumerPath: string, filePaths: string[], bindingPrefix: string): Promise<{ missing: Object, tree: Tree}> {
-  const config = { baseDir, includeNpm: true, requireConfig: null, webpackConfig: null, visited: {}, nonExistent: [] };
+export async function getDependencyTree(baseDir: string, consumerPath: string, filePaths: string[], bindingPrefix: string, resolveConfig: ?Object): Promise<{ missing: Object, tree: Tree}> {
+  const config = { baseDir, includeNpm: true, requireConfig: null, webpackConfig: null, visited: {}, nonExistent: [], resolveConfig };
   const result = generateTree(filePaths, config);
   const { groups, foundPackages } = groupMissing(result.skipped, baseDir, consumerPath, bindingPrefix);
   const tree: Tree = groupDependencyTree(result.tree, baseDir, bindingPrefix);

@@ -104,27 +104,20 @@ module.exports._getDependencies = function(config) {
   for (var i = 0, l = dependencies.length; i < l; i++) {
     var dep = dependencies[i];
     const isVue = (!Array.isArray(dep) && dep.isScript);
-    var result;
+    const cabinetParams = {
+      partial: dep,
+      filename: config.filename,
+      directory: config.directory,
+      ast: precinct.ast,
+      config: config.requireConfig,
+      webpackConfig: config.webpackConfig,
+      resolveConfig: config.resolveConfig,
+    };
     if (!Array.isArray(dep) && dep.isScript !== undefined) { // used for vue - return array of objects
-      result = cabinet({
-        partial: dep.dep,
-        filename: config.filename,
-        directory: config.directory,
-        ast: precinct.ast,
-        config: config.requireConfig,
-        webpackConfig: config.webpackConfig,
-        isScript: dep.isScript
-      });
-    } else {
-      result = cabinet({
-        partial: dep,
-        filename: config.filename,
-        directory: config.directory,
-        ast: precinct.ast,
-        config: config.requireConfig,
-        webpackConfig: config.webpackConfig
-      });
+      cabinetParams.partial = dep.dep;
+      cabinetParams.isScript = dep.isScript;
     }
+    const result = cabinet(cabinetParams);
     const dependency = isVue || dep.dep ? dep.dep : dep;
     if (!result) {
       debug('skipping an empty filepath resolution for partial: ' + dep);
