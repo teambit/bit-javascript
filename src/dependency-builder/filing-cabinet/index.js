@@ -207,8 +207,11 @@ function tsLookup(partial, filename, directory, config, webpackConfig, configPat
 }
 
 function resolveNonRelativePath(partial, filename, directory, resolveConfig) {
+  const webpackResolveConfig = {};
+  if (resolveConfig.modulesDirectories) webpackResolveConfig.modules = resolveConfig.modulesDirectories;
+  if (resolveConfig.aliases) webpackResolveConfig.alias = resolveConfig.aliases;
   try {
-    const resolver = webpackResolve.create.sync(resolveConfig);
+    const resolver = webpackResolve.create.sync(webpackResolveConfig);
     const lookupPath = isRelative(partial) ? path.dirname(filename) : directory;
     return resolver(lookupPath, partial);
   } catch (e) {
@@ -255,7 +258,7 @@ function commonJSLookup(partial, filename, directory, resolveConfig) {
     debug('resolved path: ' + result);
   } catch (e) {
     if (resolveConfig) {
-      debug('trying to resolve using resolveConfig');
+      debug('trying to resolve using resolveConfig ' + JSON.stringify(resolveConfig));
       result = resolveNonRelativePath(partial, filename, directory, resolveConfig);
     } else {
       debug('could not resolve ' + partial);
