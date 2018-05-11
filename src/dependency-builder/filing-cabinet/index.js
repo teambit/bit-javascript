@@ -1,6 +1,7 @@
 /**
 * this file had been forked from https://github.com/dependents/node-filing-cabinet
 */
+import { isRelativeImport } from '../../utils';
 
 var path = require('path');
 var debug = require('debug')('cabinet');
@@ -257,7 +258,7 @@ function commonJSLookup(partial, filename, directory, resolveConfig) {
     });
     debug('resolved path: ' + result);
   } catch (e) {
-    if (resolveConfig) {
+    if (!isRelativeImport(partial) && resolveConfig) {
       debug('trying to resolve using resolveConfig ' + JSON.stringify(resolveConfig));
       result = resolveNonRelativePath(partial, filename, directory, resolveConfig);
     } else {

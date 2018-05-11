@@ -1,3 +1,4 @@
+import { isRelativeImport } from '../../utils';
 /**
 * this file had been forked from https://github.com/dependents/node-dependency-tree
 */
@@ -140,13 +141,18 @@ module.exports._getDependencies = function(config) {
       debug('skipping non-empty but non-existent resolution: ' + result + ' for partial: ' + dep);
       continue;
     }
-    var pathMap = {dep: dependency , resolvedDep: result};
+    const pathMap = { importSource: dependency, resolvedDep: result };
     var importSpecifiersSupportedLang = ['es6', 'ts', 'stylable'];
     importSpecifiersSupportedLang.forEach((lang) => {
-      if (precinctOptions[lang] && precinctOptions[lang].importSpecifiers && precinctOptions[lang].importSpecifiers[dep]) {
-        pathMap.importSpecifiers = precinctOptions[lang].importSpecifiers[dep];
+      if (precinctOptions[lang] && precinctOptions[lang].importSpecifiers && precinctOptions[lang].importSpecifiers[dependency]) {
+        pathMap.importSpecifiers = precinctOptions[lang].importSpecifiers[dependency];
       }
     });
+    if (!isRelativeImport(dependency) && config.resolveConfig) {
+      // is includes also packages, which actually don't use customResolve, however, they will be
+      // filtered out later.
+      pathMap.isCustomResolveUsed = true;
+    }
 
     pathMapDependencies.push(pathMap);
 

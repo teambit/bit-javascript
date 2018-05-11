@@ -4,10 +4,10 @@
 import fs from 'fs';
 import path from 'path';
 import R from 'ramda';
-import generateTree from './generate-tree-madge';
-import PackageJson from '../package-json/package-json';
 import partition from 'lodash.partition';
 import lset from 'lodash.set';
+import generateTree from './generate-tree-madge';
+import PackageJson from '../package-json/package-json';
 import { DEFAULT_BINDINGS_PREFIX } from '../constants';
 
 /**
@@ -30,18 +30,28 @@ export type ImportSpecifier = {
   linkFile?: Specifier // relevant only when the dependency is a link file (e.g. index.js which import and export the variable from other file)
 }
 
+type FileObject = {
+  file: string,
+  importSpecifiers?: ImportSpecifier[],
+  importSource: string,
+  isCustomResolveUsed?: boolean,
+  isLink?: boolean,
+  linkDependencies?: Object[]
+};
+
 export type LinkFile = {
   file: string,
   importSpecifiers: ImportSpecifier[]
 };
 
 export type PathMapDependency = {
-  dep: string, // dependency path as it has been received from dependency-tree lib
+  importSource: string, // dependency path as it has been received from dependency-tree lib
+  isCustomResolveUsed?: boolean, // whether a custom resolver, such as an alias "@" for "src" dir, is used
   resolvedDep: string, // absolute path
   relativePath: string, // path relative to consumer root
-  importSpecifiers: ImportSpecifier[],
+  importSpecifiers?: ImportSpecifier[], // relevant for ES6 and TS
   linkFile?: boolean,
-  realDependencies?: LinkFile[]
+  realDependencies?: LinkFile[] // in case it's a link-file
 }
 
 /**
@@ -49,15 +59,15 @@ export type PathMapDependency = {
  */
 export type PathMapItem = {
   file: string,
-  dependencies: PathMapDependency[]
+  dependencies: PathMapDependency[],
+  relativePath: string // added by generate-tree-madge.addRelativePathsToPathMap()
 }
 
 
 export type Dependencies = {
-  files: string[],
+  files: FileObject[],
   packages?: Object,
-  importSpecifiers?: ImportSpecifier[],
-  linkFiles?: LinkFile[]
+  bits?: Object
 }
 
 export type Tree = {
@@ -344,35 +354,38 @@ function updatePathMapWithLinkFilesData(pathMap: PathMapItem[]): void {
 /**
  * remove link-files from the files array and add a new attribute 'linkFiles' to the tree
  */
-function updateTreeWithLinkFilesAndImportSpecifiers(tree: Tree, pathMap: PathMapItem[]): void {
-  if (!pathMap || !pathMap.length) return; // pathMap is relevant for supported languages only
+function updateTreeWithPathMap(tree: Tree, pathMap: PathMapItem[]): void {
+  if (!pathMap || !pathMap.length) return; // tree is empty
   updatePathMapWithLinkFilesData(pathMap);
   Object.keys(tree).forEach((mainFile) => {
-    if (!tree[mainFile].files || !tree[mainFile].files.length) return;
+    if (!tree[mainFile].files || !tree[mainFile].files.length) return; // file has no dependency
     const mainFilePathMap = pathMap.find(file => file.relativePath === mainFile);
-    if (!mainFilePathMap) return; // @todo: throw an error
-    const linkFiles = [];
-    const importSpecifiers = [];
-    tree[mainFile].files.forEach((dependency, key) => {
+    if (!mainFilePathMap) throw new Error(`updateTreeWithPathMap: PathMap is missing for ${mainFile}`);
+    const files: FileObject[] = tree[mainFile].files.map((dependency: string) => {
       const dependencyPathMap = mainFilePathMap.dependencies.find(file => file.relativePath === dependency);
-      if (!dependencyPathMap) return; // @todo: throw an error
+      if (!dependencyPathMap) throw new Error(`updateTreeWithPathMap: dependencyPathMap is missing for ${dependency}`);
+      const fileObject: FileObject = {
+        file: dependency,
+        importSource:
+        dependencyPathMap.importSource,
+        isCustomResolveUsed: dependencyPathMap.isCustomResolveUsed,
+      };
       if (dependencyPathMap.linkFile) {
-        const linkFile = { file: dependency, dependencies: dependencyPathMap.realDependencies };
-        linkFiles.push(linkFile);
-        tree[mainFile].files.splice(key, 1); // delete the linkFile from the files array, as it's not a real dependency
-      } else {
-        if (dependencyPathMap.importSpecifiers && dependencyPathMap.importSpecifiers.length) {
-          const depImportSpecifiers = dependencyPathMap.importSpecifiers.map(importSpecifier => {
-            return {
-              mainFile: importSpecifier
-            };
-          });
-          importSpecifiers.push({ file: dependency, importSpecifiers: depImportSpecifiers });
-        }
+        fileObject.isLink = true;
+        fileObject.linkDependencies = dependencyPathMap.realDependencies;
+        return fileObject;
       }
+      if (dependencyPathMap.importSpecifiers && dependencyPathMap.importSpecifiers.length) {
+        const depImportSpecifiers = dependencyPathMap.importSpecifiers.map((importSpecifier) => {
+          return {
+            mainFile: importSpecifier,
+          };
+        });
+        fileObject.importSpecifiers = depImportSpecifiers;
+      }
+      return fileObject;
     });
-    if (linkFiles.length) tree[mainFile].linkFiles = linkFiles;
-    if (importSpecifiers.length) tree[mainFile].importSpecifiers = importSpecifiers;
+    tree[mainFile].files = files; // eslint-disable-line no-param-reassign
   });
 }
 
@@ -384,12 +397,11 @@ function updateTreeWithLinkFilesAndImportSpecifiers(tree: Tree, pathMap: PathMap
  * @param bindingPrefix
  * @return {Promise<{missing, tree}>}
  */
-export async function getDependencyTree(baseDir: string, consumerPath: string, filePaths: string[], bindingPrefix: string, resolveConfig: ?Object): Promise<{ missing: Object, tree: Tree}> {
+export async function getDependencyTree(baseDir: string, consumerPath: string, filePaths: string[], bindingPrefix: string, resolveConfig: ?Object): Promise<{ missing: Object[], tree: Tree}> {
   const config = { baseDir, includeNpm: true, requireConfig: null, webpackConfig: null, visited: {}, nonExistent: [], resolveConfig };
   const result = generateTree(filePaths, config);
   const { groups, foundPackages } = groupMissing(result.skipped, baseDir, consumerPath, bindingPrefix);
   const tree: Tree = groupDependencyTree(result.tree, baseDir, bindingPrefix);
-  // const relativeFilePaths = filePaths.map(filePath => path.relative(baseDir, filePath));
   // Merge manually found packages with madge founded packages
   if (foundPackages && !R.isEmpty(foundPackages)) {
     // Madge found packages so we need to merge them with the manual
@@ -398,12 +410,12 @@ export async function getDependencyTree(baseDir: string, consumerPath: string, f
       groups.forEach((fileDep) => {
         if (fileDep.packages && fileDep.packages.includes(pkg)) {
           fileDep.packages = fileDep.packages.filter(packageName => packageName !== pkg);
-          lset(tree[fileDep['originFile']], ['packages',pkg], foundPackages[pkg]);
+          lset(tree[fileDep['originFile']], ['packages', pkg], foundPackages[pkg]);
         }
       });
     });
   }
 
-  updateTreeWithLinkFilesAndImportSpecifiers(tree, result.pathMap);
+  updateTreeWithPathMap(tree, result.pathMap);
   return { missing: groups, tree };
 }
