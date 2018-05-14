@@ -9,35 +9,7 @@ import lset from 'lodash.set';
 import generateTree from './generate-tree-madge';
 import PackageJson from '../package-json/package-json';
 import { DEFAULT_BINDINGS_PREFIX } from '../constants';
-
-/**
- * Import Specifier data.
- * For example, `import foo from './bar' `, "foo" is the import-specifier and is default.
- * Conversely, `import { foo } from './bar' `, here, "foo" is non-default.
- */
-export type Specifier = {
-  isDefault: boolean,
-  name: string
-}
-
-/**
- * ImportSpecifier are used later on to generate links from component to its dependencies.
- * For example, a component might have a dependency: "import { foo } from './bar' ", when a link is generated, we use
- * the import-specifier name, which is "foo" to generate the link correctly.
- */
-export type ImportSpecifier = {
-  mainFile: Specifier,
-  linkFile?: Specifier // relevant only when the dependency is a link file (e.g. index.js which import and export the variable from other file)
-}
-
-type FileObject = {
-  file: string,
-  importSpecifiers?: ImportSpecifier[],
-  importSource: string,
-  isCustomResolveUsed?: boolean,
-  isLink?: boolean,
-  linkDependencies?: Object[]
-};
+import type { Tree, FileObject, ImportSpecifier } from './dependency-tree-type';
 
 export type LinkFile = {
   file: string,
@@ -62,18 +34,6 @@ export type PathMapItem = {
   dependencies: PathMapDependency[],
   relativePath: string // added by generate-tree-madge.addRelativePathsToPathMap()
 }
-
-
-export type Dependencies = {
-  files: FileObject[],
-  packages?: Object,
-  bits?: Object
-}
-
-export type Tree = {
-  [main_file: string]: Dependencies
-}
-
 
 /**
  * Group dependencies by types (files, bits, packages)
@@ -148,11 +108,17 @@ export function resolveNodePackage(cwd: string, packageFullPath: string): Object
 function groupDependencyList(list, cwd, bindingPrefix) {
   const groups = byType(list, bindingPrefix);
   if (groups.packages) {
-    const packages = groups.packages.reduce((res, packagePath) => {
+    const packages = {};
+    const unidentifiedPackages = [];
+    groups.packages.forEach((packagePath) => {
       const packageWithVersion = resolveNodePackage(cwd, path.join(cwd, packagePath));
-      return Object.assign(res, packageWithVersion);
-    }, {});
+      if (packageWithVersion) Object.assign(packages, packageWithVersion);
+      else unidentifiedPackages.push(packagePath);
+    });
     groups.packages = packages;
+    if (!R.isEmpty(unidentifiedPackages)) {
+      groups.unidentifiedPackages = unidentifiedPackages;
+    }
   }
   return groups;
 }
