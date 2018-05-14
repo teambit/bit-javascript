@@ -8,7 +8,7 @@
 export type Specifier = {
   isDefault: boolean,
   name: string
-}
+};
 
 /**
  * ImportSpecifier are used to generate links from component to its dependencies.
@@ -18,7 +18,7 @@ export type Specifier = {
 export type ImportSpecifier = {
   mainFile: Specifier,
   linkFile?: Specifier // relevant only when the dependency is a link file (e.g. index.js which import and export the variable from other file)
-}
+};
 
 export type FileObject = {
   file: string,
@@ -37,9 +37,10 @@ export type LinkFile = {
 export type FileDependencies = {
   files: FileObject[],
   packages?: Object,
+  unidentifiedPackages?: string[],
   bits?: Object
-}
+};
 
 export type Tree = {
   [main_file: string]: FileDependencies
-}
+};
