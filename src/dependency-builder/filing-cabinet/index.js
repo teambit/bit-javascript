@@ -211,6 +211,7 @@ function resolveNonRelativePath(partial, filename, directory, resolveConfig) {
   const webpackResolveConfig = {};
   if (resolveConfig.modulesDirectories) webpackResolveConfig.modules = resolveConfig.modulesDirectories;
   if (resolveConfig.aliases) webpackResolveConfig.alias = resolveConfig.aliases;
+  webpackResolveConfig.extensions = Object.keys(defaultLookups).concat(['.json']);
   try {
     const resolver = webpackResolve.create.sync(webpackResolveConfig);
     const lookupPath = isRelative(partial) ? path.dirname(filename) : directory;
