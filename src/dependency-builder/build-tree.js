@@ -9,7 +9,7 @@ import lset from 'lodash.set';
 import generateTree from './generate-tree-madge';
 import PackageJson from '../package-json/package-json';
 import { DEFAULT_BINDINGS_PREFIX } from '../constants';
-import type { Tree, FileObject, ImportSpecifier } from './dependency-tree-type';
+import type { Tree, FileObject, ImportSpecifier, DependencyTreeParams } from './types/dependency-tree-type';
 
 export type ResolveConfig = {
   modulesDirectories: string[],
@@ -390,8 +390,8 @@ function getResolveConfigAbsolute(consumerPath: string, resolveConfig: ?ResolveC
  * @param bindingPrefix
  * @return {Promise<{missing, tree}>}
  */
-export async function getDependencyTree(baseDir: string, consumerPath: string, filePaths: string[], bindingPrefix: string, resolveConfig: ?ResolveConfig): Promise<{ missing: Object[], tree: Tree}> {
-  const resolveConfigAbsolute = getResolveConfigAbsolute(consumerPath, resolveConfig);
+export async function getDependencyTree({ baseDir, consumerPath, filePaths, bindingPrefix, resolveModulesConfig }: DependencyTreeParams): Promise<{ missing: Object[], tree: Tree}> {
+  const resolveConfigAbsolute = getResolveConfigAbsolute(consumerPath, resolveModulesConfig);
   const config = { baseDir, includeNpm: true, requireConfig: null, webpackConfig: null, visited: {}, nonExistent: [], resolveConfig: resolveConfigAbsolute };
   const result = generateTree(filePaths, config);
   const { groups, foundPackages } = groupMissing(result.skipped, baseDir, consumerPath, bindingPrefix);
