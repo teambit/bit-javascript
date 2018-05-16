@@ -11,6 +11,11 @@ import PackageJson from '../package-json/package-json';
 import { DEFAULT_BINDINGS_PREFIX } from '../constants';
 import type { Tree, FileObject, ImportSpecifier } from './dependency-tree-type';
 
+export type ResolveConfig = {
+  modulesDirectories: string[],
+  aliases: { [string]: string } // e.g. { '@': 'src' }
+};
+
 export type LinkFile = {
   file: string,
   importSpecifiers: ImportSpecifier[]
@@ -248,7 +253,6 @@ function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
       });
     }
     if (packageJson) {
-      console.log('packageJson here')
       const result = findPackagesInPackageJson(packageJson, missingPackages);
       groups.packages = result.missingPackages;
       Object.assign(foundPackages, result.foundPackages);
@@ -356,6 +360,29 @@ function updateTreeWithPathMap(tree: Tree, pathMap: PathMapItem[]): void {
 }
 
 /**
+ * config aliases are passed later on to webpack-enhancer and it expects them to have the full path
+ */
+function getResolveConfigAbsolute(consumerPath: string, resolveConfig: ?ResolveConfig): ?ResolveConfig {
+  if (!resolveConfig) return resolveConfig;
+  const resolveConfigAbsolute = R.clone(resolveConfig);
+  if (resolveConfig.modulesDirectories) {
+    resolveConfigAbsolute.modulesDirectories = resolveConfig.modulesDirectories.map((moduleDirectory) => {
+      return path.isAbsolute(moduleDirectory)
+        ? moduleDirectory
+        : path.join(consumerPath, moduleDirectory);
+    });
+  }
+  if (resolveConfigAbsolute.aliases) {
+    Object.keys(resolveConfigAbsolute.aliases).forEach((alias) => {
+      if (!path.isAbsolute(resolveConfigAbsolute.aliases[alias])) {
+        resolveConfigAbsolute.aliases[alias] = path.join(consumerPath, resolveConfigAbsolute.aliases[alias]);
+      }
+    });
+  }
+  return resolveConfigAbsolute;
+}
+
+/**
  * Function for fetching dependency tree of file or dir
  * @param baseDir working directory
  * @param consumerPath
@@ -363,8 +390,9 @@ function updateTreeWithPathMap(tree: Tree, pathMap: PathMapItem[]): void {
  * @param bindingPrefix
  * @return {Promise<{missing, tree}>}
  */
-export async function getDependencyTree(baseDir: string, consumerPath: string, filePaths: string[], bindingPrefix: string, resolveConfig: ?Object): Promise<{ missing: Object[], tree: Tree}> {
-  const config = { baseDir, includeNpm: true, requireConfig: null, webpackConfig: null, visited: {}, nonExistent: [], resolveConfig };
+export async function getDependencyTree(baseDir: string, consumerPath: string, filePaths: string[], bindingPrefix: string, resolveConfig: ?ResolveConfig): Promise<{ missing: Object[], tree: Tree}> {
+  const resolveConfigAbsolute = getResolveConfigAbsolute(consumerPath, resolveConfig);
+  const config = { baseDir, includeNpm: true, requireConfig: null, webpackConfig: null, visited: {}, nonExistent: [], resolveConfig: resolveConfigAbsolute };
   const result = generateTree(filePaths, config);
   const { groups, foundPackages } = groupMissing(result.skipped, baseDir, consumerPath, bindingPrefix);
   const tree: Tree = groupDependencyTree(result.tree, baseDir, bindingPrefix);
