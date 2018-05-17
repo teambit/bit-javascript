@@ -9,12 +9,7 @@ import lset from 'lodash.set';
 import generateTree from './generate-tree-madge';
 import PackageJson from '../package-json/package-json';
 import { DEFAULT_BINDINGS_PREFIX } from '../constants';
-import type { Tree, FileObject, ImportSpecifier, DependencyTreeParams } from './types/dependency-tree-type';
-
-export type ResolveConfig = {
-  modulesDirectories: string[],
-  aliases: { [string]: string } // e.g. { '@': 'src' }
-};
+import type { Tree, FileObject, ImportSpecifier, DependencyTreeParams, ResolveModulesConfig } from './types/dependency-tree-type';
 
 export type LinkFile = {
   file: string,
@@ -362,7 +357,7 @@ function updateTreeWithPathMap(tree: Tree, pathMap: PathMapItem[]): void {
 /**
  * config aliases are passed later on to webpack-enhancer and it expects them to have the full path
  */
-function getResolveConfigAbsolute(consumerPath: string, resolveConfig: ?ResolveConfig): ?ResolveConfig {
+function getResolveConfigAbsolute(consumerPath: string, resolveConfig: ?ResolveModulesConfig): ?ResolveModulesConfig {
   if (!resolveConfig) return resolveConfig;
   const resolveConfigAbsolute = R.clone(resolveConfig);
   if (resolveConfig.modulesDirectories) {
