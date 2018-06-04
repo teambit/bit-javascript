@@ -38,7 +38,6 @@
     "commander": "^2.14.1",
     "debug": "^3.1.0",
     "detective-amd": "^2.4.0",
-    "detective-cjs": "^2.0.0",
     "detective-less": "^1.0.1",
     "detective-sass": "^2.0.1",
     "detective-scss": "^1.0.1",

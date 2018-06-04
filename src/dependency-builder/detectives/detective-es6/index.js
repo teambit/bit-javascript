@@ -57,8 +57,37 @@ module.exports = function(src, options) {
         if (node.callee.type === 'Import' && node.arguments.length) {
           dependencies.push(node.arguments[0].value);
         }
+        if (node.callee.type === 'Identifier' // taken from detective-cjs
+        && node.callee.name === 'require'
+        && node.arguments
+        && node.arguments.length
+        && (node.arguments[0].type === 'Literal' || node.arguments[0].type === 'StringLiteral')) {
+          dependencies.push(node.arguments[0].value);
+        }
+        break;
+      case 'MemberExpression':
+        if (node.object.type === 'CallExpression'
+         && node.object.callee.type === 'Identifier'
+         && node.object.callee.name === 'require'
+         && node.object.arguments
+         && node.object.arguments.length
+         && (node.object.arguments[0].type === 'Literal' || node.object.arguments[0].type === 'StringLiteral')
+        ) {
+          const depValue = node.object.arguments[0].value;
+          dependencies.push(depValue);
+          if (node.property && node.property.type === 'Identifier' && node.parent.type === 'VariableDeclarator') {
+            const specifierValue = {
+              isDefault: node.property.name === 'default', // e.g. const isString = require('../utils').default
+              name: node.parent.id.name
+            };
+            importSpecifiers[depValue]
+              ? importSpecifiers[depValue].push(specifierValue)
+              : importSpecifiers[depValue] = [specifierValue];
+          }
+        }
+        break;
       default:
-        return;
+        break;
     }
   });
 
