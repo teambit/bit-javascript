@@ -118,7 +118,7 @@ module.exports._getDependencies = function(config) {
       resolveConfig: config.resolveConfig,
     };
     if (!isDependenciesArray && dependenciesRaw[dependency].isScript !== undefined) { // used for vue
-      cabinetParams.isScript = dependency.isScript;
+      cabinetParams.isScript = dependenciesRaw[dependency].isScript;
     }
     const result = cabinet(cabinetParams);
     if (!result) {

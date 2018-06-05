@@ -17,10 +17,14 @@ const addDependencies = (dependencies, isScript) => {
 };
 
 module.exports = function(src, options = {}) {
-  const precinct = require('../../precinct');
   options.useContent = true;
   const { script, styles } = compiler.parseComponent(src, { pad: 'line' });
-  if (script) addDependencies(precinct(script.content, options), true);
+  // it must be required here, otherwise, it'll be a cyclic dependency
+  const precinct = require('../../precinct');
+  if (script) {
+    const dependencies = precinct(script.content, options);
+    addDependencies(dependencies, true);
+  }
   if (styles) {
     styles.map(style => addDependencies(precinct(style.content, { type: style.lang || 'scss' }), false ));
   }
