@@ -160,10 +160,16 @@ precinct.paperwork = function(filename, options) {
 
   var deps = precinct(content, options);
 
-  if (!options.includeCore) {
-    return deps.filter(function(d) {
-      return d.dep ? !natives[d.dep] : !natives[d];
-    });
+  if (deps && !options.includeCore) {
+    if (Array.isArray(deps)) {
+      return deps.filter(function(d) {
+        return !natives[d];
+      });
+    }
+    return Object.keys(deps).reduce((acc, value) => {
+      if (!natives[value]) acc[value] = deps[value];
+      return acc;
+    }, {});
   }
 
   return deps;
