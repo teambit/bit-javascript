@@ -84,6 +84,23 @@ module.exports = function(src, options) {
               ? importSpecifiers[depValue].push(specifierValue)
               : importSpecifiers[depValue] = [specifierValue];
           }
+          if (node.property && node.property.type === 'Identifier'
+            && node.parent.type === 'AssignmentExpression'
+            && node.parent.left === 'MemberExpression'
+            && node.parent.left.object === 'MemberExpression'
+            && node.parent.left.object.object.type === 'Identifier'
+            && node.parent.left.object.object.name === 'module'
+            && node.parent.left.property.type === 'Identifier'
+           ) {
+            const specifierValue = {
+              isDefault: node.property.name === 'default', // e.g. module.exports.DraggableCore = require('./lib/DraggableCore').default;
+              name: node.parent.left.property.name
+            };
+            importSpecifiers[depValue]
+              ? importSpecifiers[depValue].push(specifierValue)
+              : importSpecifiers[depValue] = [specifierValue];
+
+          }
         }
         break;
       default:
