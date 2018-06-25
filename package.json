@@ -5,6 +5,7 @@
     "flow": "flow; test $? -eq 0 -o $? -eq 2",
     "lint": "eslint src && flow check || true",
     "precommit": "lint-staged",
+    "format": "prettier-eslint \"{src}/**/*.js\" --write",
     "test": "mocha --require babel-core/register './src/**/*.spec.js'",
     "test-circle": "mocha --require babel-core/register --reporter mocha-circleci-reporter './src/**/*.spec.js'",
     "clean": "rm -rf dist",
