@@ -16,7 +16,7 @@ const addDependencies = (dependencies, isScript) => {
   });
 };
 
-module.exports = function(src, options = {}) {
+module.exports = function (src, options = {}) {
   options.useContent = true;
   const { script, styles } = compiler.parseComponent(src, { pad: 'line' });
   // it must be required here, otherwise, it'll be a cyclic dependency
@@ -26,7 +26,8 @@ module.exports = function(src, options = {}) {
     addDependencies(dependencies, true);
   }
   if (styles) {
-    styles.map(style => addDependencies(precinct(style.content, { type: style.lang || 'scss' }), false ));
+    const dependencies = precinct(style.content, { type: style.lang || 'scss' });
+    styles.map(style => addDependencies(dependencies, false));
   }
 
   return finalDependencies;
