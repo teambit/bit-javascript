@@ -8,7 +8,7 @@ import partition from 'lodash.partition';
 import lset from 'lodash.set';
 import generateTree, { processPath } from './generate-tree-madge';
 import PackageJson from '../package-json/package-json';
-import { DEFAULT_BINDINGS_PREFIX } from '../constants';
+import { DEFAULT_BINDINGS_PREFIX, SUPPORTED_EXTENSIONS } from '../constants';
 import type {
   Tree,
   FileObject,
@@ -427,6 +427,20 @@ function mergeErrorsToTree(baseDir, errors, tree: Tree) {
   });
 }
 
+function groupBySupportedFiles(filePaths: string[]) {
+  const supportCriteria = (file) => {
+    return SUPPORTED_EXTENSIONS.includes(path.extname(file)) ? 'supportedFiles' : 'unsupportedFiles';
+  };
+  return R.groupBy(supportCriteria, filePaths);
+}
+
+function mergeUnsupportedFilesToTree(baseDir, unsupportedFiles: string[], tree: Tree) {
+  unsupportedFiles.forEach((file) => {
+    const relativeFile = processPath(file, {}, baseDir);
+    tree[relativeFile] = {};
+  });
+}
+
 /**
  * Function for fetching dependency tree of file or dir
  * @param baseDir working directory
@@ -452,13 +466,15 @@ export async function getDependencyTree({
     nonExistent: [],
     resolveConfig: resolveConfigAbsolute
   };
-  const { madgeTree, skipped, pathMap, errors } = generateTree(filePaths, config);
+  const { supportedFiles, unsupportedFiles } = groupBySupportedFiles(filePaths);
+  const { madgeTree, skipped, pathMap, errors } = generateTree(supportedFiles, config);
   const tree: Tree = groupDependencyTree(madgeTree, baseDir, bindingPrefix);
   const { missingGroups, foundPackages } = groupMissing(skipped, baseDir, consumerPath, bindingPrefix);
 
   if (foundPackages) mergeManuallyFoundPackagesToTree(foundPackages, missingGroups, tree);
   if (missingGroups) mergeMissingToTree(missingGroups, tree);
   if (errors) mergeErrorsToTree(baseDir, errors, tree);
+  if (unsupportedFiles) mergeUnsupportedFilesToTree(baseDir, unsupportedFiles, tree);
 
   updateTreeWithPathMap(tree, pathMap);
   return { tree };

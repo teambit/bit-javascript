@@ -120,7 +120,7 @@ function addRelativePathsToPathMap(pathMap, pathCache, baseDir) {
  * @param config
  * @return {Object}
  */
-export default function generateTree(files, config) {
+export default function generateTree(files = [], config) {
   const depTree = {};
   const visited = {};
   const nonExistent = {};
