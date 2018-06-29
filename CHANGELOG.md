@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+- add parsing and resolving errors to the dependency tree
+
 ## [1.0.3-dev.2] - 2018-06-27
 
 - fix detection of "export * from" syntax of ES6
