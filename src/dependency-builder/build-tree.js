@@ -412,9 +412,9 @@ function mergeMissingToTree(missingGroups, tree: Tree) {
   if (R.isEmpty(missingGroups)) return;
   missingGroups.forEach((missing) => {
     const missingCloned = R.clone(missing);
-    if (!tree[missing.originFile]) throw new Error(`${missing.originFile} is missing from Tree`);
     delete missingCloned.originFile;
-    tree[missing.originFile].missing = missingCloned;
+    if (tree[missing.originFile]) tree[missing.originFile].missing = missingCloned;
+    tree[missing.originFile] = { missing: missingCloned };
   });
 }
 
