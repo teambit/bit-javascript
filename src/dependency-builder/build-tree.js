@@ -472,8 +472,8 @@ export async function getDependencyTree({
   const { missingGroups, foundPackages } = groupMissing(skipped, baseDir, consumerPath, bindingPrefix);
 
   if (foundPackages) mergeManuallyFoundPackagesToTree(foundPackages, missingGroups, tree);
-  if (missingGroups) mergeMissingToTree(missingGroups, tree);
   if (errors) mergeErrorsToTree(baseDir, errors, tree);
+  if (missingGroups) mergeMissingToTree(missingGroups, tree);
   if (unsupportedFiles) mergeUnsupportedFilesToTree(baseDir, unsupportedFiles, tree);
 
   updateTreeWithPathMap(tree, pathMap);
