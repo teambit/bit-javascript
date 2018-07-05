@@ -9,7 +9,7 @@ import lset from 'lodash.set';
 import generateTree, { processPath } from './generate-tree-madge';
 import PackageJson from '../package-json/package-json';
 import { DEFAULT_BINDINGS_PREFIX, SUPPORTED_EXTENSIONS } from '../constants';
-import { updatePathMapWithLinkFilesData, convertPathMapToRelativePaths } from './path-map';
+import { getPathMapWithLinkFilesData, convertPathMapToRelativePaths } from './path-map';
 import type { PathMapItem } from './path-map';
 import type {
   Tree,
@@ -266,8 +266,8 @@ function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
  */
 function updateTreeWithPathMap(tree: Tree, pathMapAbsolute: PathMapItem[], baseDir: string): void {
   if (!pathMapAbsolute.length) return;
-  const pathMap = convertPathMapToRelativePaths(pathMapAbsolute, baseDir);
-  updatePathMapWithLinkFilesData(pathMap);
+  const pathMapRelative = convertPathMapToRelativePaths(pathMapAbsolute, baseDir);
+  const pathMap = getPathMapWithLinkFilesData(pathMapRelative);
   Object.keys(tree).forEach((filePath: string) => {
     const treeFiles = tree[filePath].files;
     if (!treeFiles || !treeFiles.length) return; // file has no dependency

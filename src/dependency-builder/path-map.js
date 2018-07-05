@@ -82,17 +82,16 @@ function findTheRealDepRecursive(
 /**
  * if a dependency file is in fact a link file, get its real dependencies.
  */
-export function getDependenciesFromLinkFileIfExists(
-  dependency: PathMapDependency,
-  pathMap: PathMapItem[]
-): ?(LinkFile[]) {
+function getDependenciesFromLinkFileIfExists(dependency: PathMapDependency, pathMap: PathMapItem[]): ?(LinkFile[]) {
   const dependencyPathMap: ?PathMapItem = pathMap.find(file => file.file === dependency.resolvedDep);
   if (
     !dependencyPathMap ||
     !dependencyPathMap.dependencies.length ||
     !dependency.importSpecifiers ||
     !dependency.importSpecifiers.length
-  ) { return null; }
+  ) {
+    return null;
+  }
 
   const dependencies = dependency.importSpecifiers.map((specifier: Specifier) => {
     const realDep = findTheRealDepRecursive(pathMap, dependencyPathMap, specifier);
@@ -126,7 +125,8 @@ export function getDependenciesFromLinkFileIfExists(
 /**
  * mark dependencies that are link-files as such. Also, add the data of the real dependencies
  */
-export function updatePathMapWithLinkFilesData(pathMap: PathMapItem[]): void {
+export function getPathMapWithLinkFilesData(pathMap: PathMapItem[]): PathMapItem[] {
+  if (!Array.isArray(pathMap)) throw new TypeError('pathMap must be an array');
   const updateDependencyWithLinkData = (dependency: PathMapDependency) => {
     const dependenciesFromLinkFiles = getDependenciesFromLinkFileIfExists(dependency, pathMap);
     if (dependenciesFromLinkFiles && dependenciesFromLinkFiles.length) {
@@ -140,4 +140,6 @@ export function updatePathMapWithLinkFilesData(pathMap: PathMapItem[]): void {
       updateDependencyWithLinkData(dependency);
     });
   });
+
+  return pathMap;
 }

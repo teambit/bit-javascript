@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+- improve the tree shaking mechanism to work with unlimited number of intermediate (link) files
+
 ## [1.0.3-dev.6] - 2018-07-04
 
 - fix parsing error when a Vue file has a dependency prefix with a Tilda inside a style section
