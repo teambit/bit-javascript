@@ -9,6 +9,8 @@ import R from 'ramda';
 import { processPath } from './generate-tree-madge';
 import type { ImportSpecifier, Specifier, LinkFile } from './types/dependency-tree-type';
 
+const debug = require('debug')('path-map');
+
 export type PathMapDependency = {
   importSource: string, // dependency path as it has been received from dependency-tree lib
   isCustomResolveUsed?: boolean, // whether a custom resolver, such as an alias "@" for "src" dir, is used
@@ -71,6 +73,7 @@ function findTheRealDependency(
   let currentPathMap: PathMapItem = firstPathMap;
   let lastRealDep: ?PathMapDependency;
   const visitedFiles: string[] = [];
+
   while (!visitedFiles.includes(currentPathMap.file)) {
     visitedFiles.push(currentPathMap.file);
     const currentRealDep: ?PathMapDependency = currentPathMap.dependencies.find((dep) => {
@@ -87,17 +90,30 @@ function findTheRealDependency(
       // is the last one. no need to continue searching.
       return currentRealDep;
     }
+    if (currentPathMap.file === realDepPathMap.file) {
+      // same file imports from itself (self cycle), just return the same file.
+      // e.g. utils/is-string.js => `import { isString } from './is-string'; export default function () {};`
+      return currentRealDep;
+    }
     // the realDep we found might not be the last one, continue searching
     lastRealDep = currentRealDep;
     currentPathMap = realDepPathMap;
   }
 
-  throw new Error(`an invalid cycle has been found while looking for "${specifier.name}" specifier in "${
-    firstPathMap.file
-  }" file.
+  // visitedFiles includes currentPathMap.file, which means, it has a cycle dependency
+  // when the cycle dependencies involve multiple files, we don't know which one is the real file
+  // and which one is the link file. Here is an example:
+  // bar/foo.js => `imports { isString } from 'utils'`;
+  // utils/index.js => `export { isString } from './is-string'`;
+  // utils/is-string.js => `import { isString } from '.'; export default function () {};`
+  // the cycle is as follows: bar/foo.js => utils/index.js => utils/is-string.js => utils/index.js.
+  // here, we don't know whether the utils/is-string.js is the link-file or maybe utils/index.js
+  // we have no choice but ignoring the link-files.
+  debug(`an invalid cycle has been found while looking for "${specifier.name}" specifier in "${firstPathMap.file}" file.
 visited files by this order: ${visitedFiles.join(', ')}
 the first file imports "${specifier.name}" from the second file, the second file imports it from the third and so on.
 eventually, the last file imports it from one of the files that were visited already which is an invalid state.`);
+  return null;
 }
 
 /**

@@ -6,7 +6,6 @@ import { isRelativeImport } from '../../utils';
  */
 
 const precinct = require('../precinct');
-const path = require('path');
 const fs = require('fs');
 const cabinet = require('../filing-cabinet');
 const debug = require('debug')('tree');
