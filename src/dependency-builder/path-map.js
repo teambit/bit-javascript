@@ -90,11 +90,6 @@ function findTheRealDependency(
       // is the last one. no need to continue searching.
       return currentRealDep;
     }
-    if (currentPathMap.file === realDepPathMap.file) {
-      // same file imports from itself (self cycle), just return the same file.
-      // e.g. utils/is-string.js => `import { isString } from './is-string'; export default function () {};`
-      return currentRealDep;
-    }
     // the realDep we found might not be the last one, continue searching
     lastRealDep = currentRealDep;
     currentPathMap = realDepPathMap;
