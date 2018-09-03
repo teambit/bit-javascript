@@ -43,7 +43,7 @@ export function convertPathMapToRelativePaths(pathMap: PathMapItem[], baseDir: s
 /**
  * if a resolvedDep of a specifier has its own importSpecifiers and one of them is the same of the
  * given specifier, then, the realDep is not the resolvedDep and might be the resolvedDep of the
- * resolvedDep. It needs to be recursive because it might have multiple link files.
+ * resolvedDep. It needs to be done in multiple rounds because it might have multiple link files.
  *
  * it is easier to understand with an example:
  * bar/foo.js requires an index file => utils/index.js, => `import { isString } from '../utils';`
@@ -63,20 +63,41 @@ export function convertPathMapToRelativePaths(pathMap: PathMapItem[], baseDir: s
  * which introduce this file as the second candidate. this file doesn't have any dependency,
  * therefore it returns this file as the final realDep.
  */
-function findTheRealDepRecursive(
-  pathMap: PathMapItem[],
-  depPathMap: PathMapItem,
-  specifier: Specifier,
-  lastRealDep?: PathMapDependency
+function findTheRealDependency(
+  allPathMapItems: PathMapItem[],
+  firstPathMap: PathMapItem,
+  specifier: Specifier
 ): ?PathMapDependency {
-  const realDep = depPathMap.dependencies.find((dep) => {
-    if (!dep.importSpecifiers) return false;
-    return dep.importSpecifiers.find(depSpecifier => depSpecifier.name === specifier.name);
-  });
-  if (!realDep) return lastRealDep;
-  const realDepPathMap = pathMap.find(file => file.file === realDep.resolvedDep);
-  if (!realDepPathMap || !realDepPathMap.dependencies.length) return realDep;
-  return findTheRealDepRecursive(pathMap, realDepPathMap, specifier, realDep);
+  let currentPathMap: PathMapItem = firstPathMap;
+  let lastRealDep: ?PathMapDependency;
+  const visitedFiles: string[] = [];
+  while (!visitedFiles.includes(currentPathMap.file)) {
+    visitedFiles.push(currentPathMap.file);
+    const currentRealDep: ?PathMapDependency = currentPathMap.dependencies.find((dep) => {
+      if (!dep.importSpecifiers) return false;
+      return dep.importSpecifiers.find(depSpecifier => depSpecifier.name === specifier.name);
+    });
+    if (!currentRealDep) {
+      // the currentRealDep is not the real dependency, return the last real we found
+      return lastRealDep;
+    }
+    const realDepPathMap = allPathMapItems.find(file => file.file === currentRealDep.resolvedDep);
+    if (!realDepPathMap || !realDepPathMap.dependencies.length) {
+      // since the currentRealDep we just found doesn't have any more dependencies, we know that it
+      // is the last one. no need to continue searching.
+      return currentRealDep;
+    }
+    // the realDep we found might not be the last one, continue searching
+    lastRealDep = currentRealDep;
+    currentPathMap = realDepPathMap;
+  }
+
+  throw new Error(`an invalid cycle has been found while looking for "${specifier.name}" specifier in "${
+    firstPathMap.file
+  }" file.
+visited files by this order: ${visitedFiles.join(', ')}
+the first file imports "${specifier.name}" from the second file, the second file imports it from the third and so on.
+eventually, the last file imports it from one of the files that were visited already which is an invalid state.`);
 }
 
 /**
@@ -94,7 +115,7 @@ function getDependenciesFromLinkFileIfExists(dependency: PathMapDependency, path
   }
 
   const dependencies = dependency.importSpecifiers.map((specifier: Specifier) => {
-    const realDep = findTheRealDepRecursive(pathMap, dependencyPathMap, specifier);
+    const realDep = findTheRealDependency(pathMap, dependencyPathMap, specifier);
     // $FlowFixMe
     if (!realDep) return null;
     // $FlowFixMe importSpecifiers do exist
