@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+- fix symlinks to node_modules to be recognized as modules instead of files
+
 ## [1.0.6-dev.3] - 2018-09-03
 
 - fix get-dependency command to cache processed files
