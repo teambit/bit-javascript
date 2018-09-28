@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+- fix resolving npm paths to be linked to the correct file
+
 ## [1.0.6-dev.4] - 2018-09-20
 
 - fix symlinks to node_modules to be recognized as modules instead of files
