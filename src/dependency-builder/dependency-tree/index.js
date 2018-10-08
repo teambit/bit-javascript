@@ -172,10 +172,20 @@ function traverse(config) {
       }
       debug('cabinet-resolved all dependencies: ', dependencies);
       tree[dependency] = dependencies;
-      config.visited[dependency] = dependencies;
+      const filePathMap = config.pathMap.find(pathMapEntry => pathMapEntry.file === dependency);
+      if (!filePathMap) throw new Error(`file ${dependency} is missing from PathMap`);
+      config.visited[dependency] = filePathMap;
       dependencies.forEach(d => stack.push(d));
     } else {
       debug(`already visited ${dependency}`);
+      const dependenciesStack = [dependency];
+      while (dependenciesStack.length) {
+        const dep = dependenciesStack.pop();
+        const dependencies = config.visited[dep].dependencies.map(d => d.resolvedDep);
+        tree[dep] = dependencies;
+        config.pathMap.push(config.visited[dep]);
+        dependencies.forEach(d => dependenciesStack.push(d));
+      }
     }
   }
 
