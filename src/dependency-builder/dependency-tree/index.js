@@ -152,6 +152,13 @@ module.exports._getDependencies = function (config) {
   return resolvedDependencies;
 };
 
+/**
+ * the traverse is not a recursive function anymore, it has been changed to be iterative to fix
+ * some performance issues.
+ * @todo: we have some redundancy here with the `tree` and pathMap`. the `tree` has only the dependencies,
+ * `pathMap` has the dependencies and some more info, such as importSpecifiers. we should use only
+ * pathMap and get rid of tree.
+ */
 function traverse(config) {
   const tree = [];
   const stack = [config.filename];
@@ -177,14 +184,21 @@ function traverse(config) {
       config.visited[dependency] = filePathMap;
       dependencies.forEach(d => stack.push(d));
     } else {
-      debug(`already visited ${dependency}`);
+      debug(`already visited ${dependency}. Will try to find it and its dependencies in the cache`);
       const dependenciesStack = [dependency];
       while (dependenciesStack.length) {
         const dep = dependenciesStack.pop();
+        if (!config.visited[dep]) {
+          debug(`unable to find ${dep} in the cache, it was probably filtered before`);
+          continue;
+        }
+        debug(`found ${dep} in the cache`);
         const dependencies = config.visited[dep].dependencies.map(d => d.resolvedDep);
         tree[dep] = dependencies;
         config.pathMap.push(config.visited[dep]);
-        dependencies.forEach(d => dependenciesStack.push(d));
+        dependencies.forEach((d) => {
+          if (!tree[d]) dependenciesStack.push(d);
+        });
       }
     }
   }
