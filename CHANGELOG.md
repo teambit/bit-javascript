@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+- utilize the cache mechanism of dependency-tree to cache resolved dependencies
+
 ## [1.0.6-dev.6] - 2018-10-04
 
 - fix resolving npm paths to be linked to the correct file
