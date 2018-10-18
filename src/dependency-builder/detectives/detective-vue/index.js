@@ -20,7 +20,11 @@ module.exports = function (src, options = {}) {
   // it must be required here, otherwise, it'll be a cyclic dependency
   const precinct = require('../../precinct');
   if (script) {
-    options.type = script.lang || 'js';
+    if (script.lang) {
+      options.type = script.lang;
+    } else {
+      options.useContent = true;
+    }
     const dependencies = precinct(script.content, options);
     addDependencies(dependencies, true);
   }
