@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+## [1.0.6-dev.8] - 2018-10-19
+
 - support other script languages (such as typescript) inside Vue files
 
 ## [1.0.6-dev.7] - 2018-10-09
