@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+- support mix syntax of typescript and javascript inside .ts file
+
 ## [1.0.6-dev.8] - 2018-10-19
 
 - support other script languages (such as typescript) inside Vue files
