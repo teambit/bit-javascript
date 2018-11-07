@@ -196,7 +196,9 @@ function traverse(config) {
         const dependencies = config.visited[dep].pathMap.dependencies.map(d => d.resolvedDep);
         tree[dep] = dependencies;
         config.pathMap.push(config.visited[dep].pathMap);
-        config.nonExistent[dependency] = config.visited[dep].missing;
+        if (config.visited[dep].missing) {
+          config.nonExistent[dependency] = config.visited[dep].missing;
+        }
         dependencies.forEach((d) => {
           if (!tree[d]) dependenciesStack.push(d);
         });
