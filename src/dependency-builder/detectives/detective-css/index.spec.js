@@ -57,6 +57,10 @@ describe('detective-css', function () {
       ]);
     });
 
+    it('handles simple import', function () {
+      test('@import "_foo.css"', ['_foo.css']);
+    });
+
     it('handles comma-separated imports (#2)', function () {
       test('@import "_foo.css", "bar";', ['_foo.css', 'bar']);
     });
