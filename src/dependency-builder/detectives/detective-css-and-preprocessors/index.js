@@ -97,19 +97,9 @@ function extractDependencies(importStatementNode) {
 }
 
 function handleError(error) {
-  // allows imports with no semicolon
-  if (error.message === 'Semicolon or block is expected') {
-    return false;
+  // return only LeftCurlyBracket is expected error
+  if (error.message === 'LeftCurlyBracket is expected') {
+    throw new Error(error.message);
   }
-  // ignore Colon is expected error
-  if (error.message === 'Colon is expected') {
-    return false;
-  }
-
-  // String or url() is expected error
-  if (error.message === 'String or url() is expected') {
-    return false;
-  }
-
-  throw new Error(error.message);
+  return false;
 }
