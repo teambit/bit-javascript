@@ -97,9 +97,7 @@ function extractDependencies(importStatementNode) {
 }
 
 function handleError(error) {
-  // return only LeftCurlyBracket is expected error
-  if (error.message === 'LeftCurlyBracket is expected') {
-    throw new Error(error.message);
-  }
+  // handle parse error
+
   return false;
 }
