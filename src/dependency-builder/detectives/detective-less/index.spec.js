@@ -65,7 +65,7 @@ describe('detective-less', function () {
       test('@import "_foo.less"\n@import "_bar.less"', ['_foo.less', '_bar.less']);
     });
 
-    it.only('allow less spical imports', function () {
+    it('allow less spical imports', function () {
       test('@import (reference) "_foo.less";', ['_foo.less']);
       test('@import (reference   )   "_foo.less"; ', ['_foo.less']);
       test('@import ( reference ) "_foo.less";', ['_foo.less']);
