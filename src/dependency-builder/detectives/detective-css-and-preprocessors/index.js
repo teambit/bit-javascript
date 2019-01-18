@@ -33,7 +33,7 @@ module.exports = function detective(fileContent, syntax) {
       return;
     }
 
-    dependencies = dependencies.concat(extractDependencies(node));
+    dependencies = dependencies.concat(extractDependencies(node, syntax));
   });
   return dependencies;
 };
@@ -78,6 +78,7 @@ function extractDependencies(importStatementNode) {
 
   // handles comma-separated imports
   if (importStatementNode.prelude.type === 'Raw' && importStatementNode.prelude.value.includes(',')) {
+    importStatementNode.prelude.value = clearLessImportsRules(importStatementNode.prelude.value);
     let imports = importStatementNode.prelude.value.split(',');
     imports = imports.map((imp) => {
       return imp
@@ -91,13 +92,33 @@ function extractDependencies(importStatementNode) {
 
   // returns the dependencies of the given .sass file content
   if (importStatementNode.prelude.type === 'Raw') {
+    importStatementNode.prelude.value = clearLessImportsRules(importStatementNode.prelude.value);
     return importStatementNode.prelude.value;
   }
   return [];
 }
 
+function clearLessImportsRules(importString) {
+  // list from http://lesscss.org/features/#import-atrules-feature-import-options
+  const lessImportOptions = ['reference', 'inline', 'less', 'css', 'once', 'multiple', 'optional'];
+  const toClearSepicalImports = lessImportOptions.some((imp) => {
+    if (importString.includes(imp)) {
+      return true;
+    }
+    return false;
+  });
+
+  if (toClearSepicalImports) {
+    importString = importString.replace(/ *\([^)]*\) */g, '');
+  }
+
+  return importString
+    .replace(/["']/g, '')
+    .replace(/\n/g, '')
+    .replace(/\s/g, '');
+}
+
 function handleError(error) {
   // handle parse error
-
   return false;
 }
