@@ -190,28 +190,32 @@ function traverse(config) {
     const filePathMap = config.pathMap.find(pathMapEntry => pathMapEntry.file === dependency);
     if (!filePathMap) throw new Error(`file ${dependency} is missing from PathMap`);
     config.visited[dependency] = { pathMap: filePathMap, missing: config.nonExistent[dependency] };
-    dependencies.forEach(d => stack.push(d));
+    stack.push(...dependencies);
   }
 
   function populateFromCache(dependency) {
     debug(`already visited ${dependency}. Will try to find it and its dependencies in the cache`);
     const dependenciesStack = [dependency];
     while (dependenciesStack.length) {
-      const dep = dependenciesStack.pop();
-      if (!config.visited[dep]) {
-        debug(`unable to find ${dep} in the cache, it was probably filtered before`);
-        continue;
-      }
-      debug(`found ${dep} in the cache`);
-      const dependencies = config.visited[dep].pathMap.dependencies.map(d => d.resolvedDep);
-      tree[dep] = dependencies;
-      config.pathMap.push(config.visited[dep].pathMap);
-      if (config.visited[dep].missing) {
-        config.nonExistent[dep] = config.visited[dep].missing;
-      }
-      dependencies.forEach((d) => {
-        if (!tree[d]) dependenciesStack.push(d);
-      });
+      findAllDependenciesInCache(dependenciesStack);
     }
+  }
+
+  function findAllDependenciesInCache(dependenciesStack) {
+    const dependency = dependenciesStack.pop();
+    if (!config.visited[dependency]) {
+      debug(`unable to find ${dependency} in the cache, it was probably filtered before`);
+      return;
+    }
+    debug(`found ${dependency} in the cache`);
+    const dependencies = config.visited[dependency].pathMap.dependencies.map(d => d.resolvedDep);
+    tree[dependency] = dependencies;
+    config.pathMap.push(config.visited[dependency].pathMap);
+    if (config.visited[dependency].missing) {
+      config.nonExistent[dependency] = config.visited[dependency].missing;
+    }
+    dependencies.forEach((d) => {
+      if (!tree[d]) dependenciesStack.push(d);
+    });
   }
 }
