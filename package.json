@@ -1,6 +1,6 @@
 {
   "name": "bit-javascript",
-  "version": "1.0.6-dev.17",
+  "version": "1.0.6-dev.18",
   "scripts": {
     "flow": "flow; test $? -eq 0 -o $? -eq 2",
     "lint": "eslint src && flow check || true",
@@ -49,6 +49,7 @@
     "glob": "^7.1.1",
     "ini-builder": "^1.1.1",
     "is-relative-path": "^2.0.0",
+    "is-url": "^1.2.4",
     "lodash.partition": "^4.6.0",
     "lodash.set": "^4.3.2",
     "module-definition": "^2.2.4",
