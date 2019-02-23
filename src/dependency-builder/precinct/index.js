@@ -3,20 +3,20 @@
  */
 import { SUPPORTED_EXTENSIONS } from '../../constants';
 
+import detectiveAmd from 'detective-amd';
+import detectiveEs6 from '../detectives/detective-es6';
+import detectiveLess from '../detectives/detective-less';
+import detectiveSass from '../detectives/detective-sass';
+import detectiveScss from '../detectives/detective-scss';
+import detectiveCss from '../detectives/detective-css';
+import detectiveStylus from 'detective-stylus';
+import detectiveTypeScript from '../detectives/detective-typescript';
+import detectiveStylable from '../detectives/detective-stylable';
+import detectiveVue from '../detectives/detective-vue';
+
 const getModuleType = require('module-definition');
 const debug = require('debug')('precinct');
 const Walker = require('node-source-walk');
-
-const detectiveAmd = require('detective-amd');
-const detectiveEs6 = require('../detectives/detective-es6');
-const detectiveLess = require('../detectives/detective-less');
-const detectiveSass = require('../detectives/detective-sass');
-const detectiveScss = require('../detectives/detective-scss');
-const detectiveCss = require('../detectives/detective-css');
-const detectiveStylus = require('detective-stylus');
-const detectiveTypeScript = require('../detectives/detective-typescript');
-const detectiveStylable = require('../detectives/detective-stylable');
-const detectiveVue = require('../detectives/detective-vue');
 
 const fs = require('fs');
 const path = require('path');

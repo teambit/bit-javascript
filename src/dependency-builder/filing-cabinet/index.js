@@ -4,6 +4,7 @@
  * this file had been forked from https://github.com/dependents/node-filing-cabinet
  */
 import { isRelativeImport } from '../../utils';
+import ts from 'typescript';
 
 const path = require('path');
 const debug = require('debug')('cabinet');
@@ -14,7 +15,6 @@ const resolve = require('resolve');
 const amdLookup = require('module-lookup-amd');
 const stylusLookup = require('stylus-lookup');
 const sassLookup = require('sass-lookup');
-const ts = require('typescript');
 
 const resolveDependencyPath = require('resolve-dependency-path');
 const appModulePath = require('app-module-path');
