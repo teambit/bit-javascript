@@ -2,19 +2,20 @@ const assert = require('assert');
 const sinon = require('sinon');
 const rewire = require('rewire');
 const mock = require('mock-fs');
+const path = require('path');
+
+const cabinet = rewire('./');
+const fixtures = `${__dirname}/../../../fixtures/filing-cabinet`;
+const mockedFiles = require(`${fixtures}/mockedJSFiles`);
+const mockAST = require(`${fixtures}/ast`);
+const mockRootDir = path.join(__dirname, '..', '..', '..');
+
+// needed for the lazy loading
 require('resolve-dependency-path');
 require('sass-lookup');
 require('app-module-path');
 require('module-definition');
 require('module-lookup-amd');
-const path = require('path');
-
-const cabinet = rewire('./');
-
-const fixtures = `${__dirname}/../../../fixtures/filing-cabinet`;
-const mockedFiles = require(`${fixtures}/mockedJSFiles`);
-const mockAST = require(`${fixtures}/ast`);
-const mockRootDir = path.join(__dirname, '..', '..', '..');
 
 describe('filing-cabinet', () => {
   describe('JavaScript', () => {
