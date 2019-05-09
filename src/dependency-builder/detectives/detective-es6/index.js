@@ -28,6 +28,7 @@ module.exports = function (src) {
   };
   const addExportedToImportSpecifier = (name) => {
     Object.keys(dependencies).forEach((dependency) => {
+      if (!dependencies[dependency].importSpecifiers) return;
       const specifier = dependencies[dependency].importSpecifiers.find(i => i.name === name);
       if (specifier) specifier.exported = true;
     });
