@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+- [#1665](https://github.com/teambit/bit/issues/1665) fix resolve-modules prefix with tilda
+
 ## [2.0.8] - 2019-05-27
 
 - add support with `optionalChaining` and `nullishCoalescingOperator` plugins (by updating node-source-walk)
