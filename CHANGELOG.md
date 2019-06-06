@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+- support angular components (experimental)
+
 ## [2.0.11] - 2019-06-05
 
 - [#1708](https://github.com/teambit/bit/issues/1708) support `require` with apostrophes
