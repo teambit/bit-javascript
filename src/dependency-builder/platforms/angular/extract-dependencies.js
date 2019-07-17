@@ -23,6 +23,9 @@ export default function extractAngularDependencies(workspaceDir: string, fileNam
     };
 
     const program = path.join(workspaceDir, 'tsconfig.json');
+    if (!fs.existsSync(program)) {
+      throw new Error(`failed finding tsconfig.json file at ${program}`);
+    }
     const defaultErrorReporter = (e, pathStr) => console.error(e, pathStr);
     return new ProjectSymbols(program, resourceResolver, defaultErrorReporter);
   }
@@ -30,8 +33,10 @@ export default function extractAngularDependencies(workspaceDir: string, fileNam
   function getDependenciesFromDecorator(): string[] {
     const dependencies = [];
     if (!directive) return dependencies;
-    const templateUrl = directive.getNonResolvedMetadata().template.templateUrl;
-    const styleUrls = directive.getNonResolvedMetadata().template.styleUrls;
+    const directiveMetadata = directive.getNonResolvedMetadata();
+    if (!directiveMetadata.template) return dependencies;
+    const templateUrl = directiveMetadata.template.templateUrl;
+    const styleUrls = directiveMetadata.template.styleUrls;
     [templateUrl, ...styleUrls].forEach((url) => {
       if (url) {
         // for some reason, the url received is sometimes absolute sometimes relative to the fileName
@@ -43,13 +48,14 @@ export default function extractAngularDependencies(workspaceDir: string, fileNam
   }
 
   function getDependenciesFromTemplate(): string[] {
-    if (!directive) return [];
+    const dependencies = [];
+    if (!directive) return dependencies;
+    const directives = contextSymbols.getDirectives();
+    if (!directives) return dependencies;
     // dependencies from templates
-    const appSelectors = contextSymbols
-      .getDirectives()
-      .filter(d => d.isComponent())
-      .map(d => d.getNonResolvedMetadata().selector);
+    const appSelectors = directives.filter(d => d.isComponent()).map(d => d.getNonResolvedMetadata().selector);
     const templateAst = directive.getTemplateAst().templateAst;
+    if (!templateAst) return dependencies;
     const selectorsFromTemplate = templateAst
       .filter(t => t.name && t.constructor.name === 'ElementAst' && appSelectors.includes(t.name))
       .map(t => t.name);
