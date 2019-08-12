@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+- remove angular dependencies. use typescript compiler to parse Angular Decorators
+
 ## [2.1.0] - 2019-07-18
 
 - propagate from component root dir backwards to find tsconfig.json for Angular projects
