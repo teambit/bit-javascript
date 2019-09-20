@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+- avoid recognizing any require/import starts with `.` as a custom-resolve-module on Windows
+
 ## [2.1.1-dev.2] - 2019-08-13
 
 - [#1925](https://github.com/teambit/bit/issues/1925) fix Angular non-relative paths from decorators
