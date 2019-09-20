@@ -1,6 +1,6 @@
 {
   "name": "bit-javascript",
-  "version": "2.1.1-dev.3",
+  "version": "2.1.2-dev.1",
   "scripts": {
     "flow": "flow; test $? -eq 0 -o $? -eq 2",
     "lint": "eslint src && flow check || true",
@@ -13,7 +13,9 @@
     "build": "babel src -d dist  --source-maps --verbose",
     "watch": "babel --watch src -d dist --source-maps --verbose",
     "prepublishOnly": "npm run clean && npm run build",
-    "build-debug": "babel src -d dist --source-maps"
+    "build-debug": "babel src -d dist --source-maps",
+    "pre-release": "gh-release --prerelease",
+    "release": "gh-release"
   },
   "bin": {
     "bitjs": "bin/bitjs.js"
@@ -90,6 +92,7 @@
     "eslint-plugin-jsx-a11y": "^6.0.3",
     "eslint-plugin-react": "^7.8.2",
     "flow-bin": "^0.75.0",
+    "gh-release": "^3.5.0",
     "husky": "^0.14.3",
     "lint-staged": "^7.1.0",
     "mocha": "^5.1.1",
