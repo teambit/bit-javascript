@@ -25,13 +25,32 @@ export type LinkFile = {
 };
 
 /**
+ * Validate if this module is imported by bits or npm/yarn
+ * @param {string} modulePath module directory
+ * @param {any} cwd root of working directory (used for node packages version calculation)
+ */
+function isImportedByBit(modulePath, cwd) {
+  const packageObject = resolveNodePackage(cwd, path.join(cwd, modulePath));
+  if (packageObject) {
+    const moduleName = Object.keys(packageObject)[0];
+    if (moduleName) {
+      return packageObject[moduleName].startsWith('file');
+    }
+  }
+}
+
+/**
  * Group dependencies by types (files, bits, packages)
  * @param {any} dependencies list of dependencies paths to group
  * @returns {Function} function which group the dependencies
+ * @param {any} cwd root of working directory (used for node packages version calculation)
  */
-const byType = (list, bindingPrefix) => {
+const byType = (list, bindingPrefix, cwd) => {
   const grouped = R.groupBy((item) => {
-    if (item.includes(`node_modules/${bindingPrefix}`) || item.includes(`node_modules/${DEFAULT_BINDINGS_PREFIX}`)) {
+    if (
+      (item.includes(`node_modules/${bindingPrefix}`) || item.includes(`node_modules/${DEFAULT_BINDINGS_PREFIX}`)) &&
+      isImportedByBit(item, cwd)
+    ) {
       return 'bits';
     }
     return item.includes('node_modules') ? 'packages' : 'files';
@@ -121,7 +140,7 @@ function resolvePackageDirFromFilePath(absolutePackageFilePath: string): string 
  * @returns {Object} object with the dependencies groups
  */
 function groupDependencyList(list, cwd, bindingPrefix) {
-  const groups = byType(list, bindingPrefix);
+  const groups = byType(list, bindingPrefix, cwd);
   if (groups.packages) {
     const packages = {};
     const unidentifiedPackages = [];
@@ -293,29 +312,31 @@ function updateTreeWithPathMap(tree: Tree, pathMapAbsolute: PathMapItem[], baseD
     const mainFilePathMap = pathMap.find(file => file.file === filePath);
     if (!mainFilePathMap) throw new Error(`updateTreeWithPathMap: PathMap is missing for ${filePath}`);
     // a file might have a cycle dependency with itself, remove it from the dependencies.
-    const files: FileObject[] = treeFiles.filter(dependency => dependency !== filePath).map((dependency: string) => {
-      const dependencyPathMap = mainFilePathMap.dependencies.find(file => file.resolvedDep === dependency);
-      if (!dependencyPathMap) throw new Error(`updateTreeWithPathMap: dependencyPathMap is missing for ${dependency}`);
-      const fileObject: FileObject = {
-        file: dependency,
-        importSource: dependencyPathMap.importSource,
-        isCustomResolveUsed: dependencyPathMap.isCustomResolveUsed
-      };
-      if (dependencyPathMap.linkFile) {
-        fileObject.isLink = true;
-        fileObject.linkDependencies = dependencyPathMap.realDependencies;
+    const files: FileObject[] = treeFiles
+      .filter(dependency => dependency !== filePath)
+      .map((dependency: string) => {
+        const dependencyPathMap = mainFilePathMap.dependencies.find(file => file.resolvedDep === dependency);
+        if (!dependencyPathMap) { throw new Error(`updateTreeWithPathMap: dependencyPathMap is missing for ${dependency}`); }
+        const fileObject: FileObject = {
+          file: dependency,
+          importSource: dependencyPathMap.importSource,
+          isCustomResolveUsed: dependencyPathMap.isCustomResolveUsed
+        };
+        if (dependencyPathMap.linkFile) {
+          fileObject.isLink = true;
+          fileObject.linkDependencies = dependencyPathMap.realDependencies;
+          return fileObject;
+        }
+        if (dependencyPathMap.importSpecifiers && dependencyPathMap.importSpecifiers.length) {
+          const depImportSpecifiers = dependencyPathMap.importSpecifiers.map((importSpecifier) => {
+            return {
+              mainFile: importSpecifier
+            };
+          });
+          fileObject.importSpecifiers = depImportSpecifiers;
+        }
         return fileObject;
-      }
-      if (dependencyPathMap.importSpecifiers && dependencyPathMap.importSpecifiers.length) {
-        const depImportSpecifiers = dependencyPathMap.importSpecifiers.map((importSpecifier) => {
-          return {
-            mainFile: importSpecifier
-          };
-        });
-        fileObject.importSpecifiers = depImportSpecifiers;
-      }
-      return fileObject;
-    });
+      });
     tree[filePath].files = files; // eslint-disable-line no-param-reassign
   });
 }
