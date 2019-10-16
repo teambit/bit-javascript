@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+- [#2072](https://github.com/teambit/bit/issues/2072) upgrade module-definition package to support React fragments
+
 ## [2.1.2-dev.2] - 2019-10-04
 
 - upgrade typescript and typescript parser packages
