@@ -55,7 +55,7 @@
     "lodash.partition": "^4.6.0",
     "lodash.set": "^4.3.2",
     "module-definition": "^3.2.0",
-    "module-lookup-amd": "^5.0.1",
+    "module-lookup-amd": "^6.2.0",
     "node-source-walk": "^4.2.0",
     "object-assign": "^4.1.1",
     "ora": "^1.2.0",
