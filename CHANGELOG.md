@@ -7,16 +7,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
-## [2.1.2-dev.3] - 2019-10-04
+## [2.1.3-dev.2] - 2019-10-17
 
 - fix npm audit issues
 - [#2072](https://github.com/teambit/bit/issues/2072) upgrade module-definition package to support React fragments
 
-## [2.1.2-dev.2] - 2019-10-04
+
+## [2.1.3-dev.1] - 2019-10-06
 
 - upgrade typescript and typescript parser packages
 
-## [2.1.2-dev.1] - 2019-09-20
+## [2.1.2] - 2019-10-06
 
 - avoid recognizing any require/import starts with `.` as a custom-resolve-module on Windows
 
