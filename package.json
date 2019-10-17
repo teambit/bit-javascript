@@ -64,9 +64,9 @@
     "regenerator-runtime": "^0.10.5",
     "resolve": "^1.5.0",
     "resolve-dependency-path": "^2.0.0",
-    "sass-lookup": "^1.1.0",
+    "sass-lookup": "^3.0.0",
     "stylable": "5.2.2",
-    "stylus-lookup": "^1.0.2",
+    "stylus-lookup": "^3.0.2",
     "typescript": "3.6.3",
     "user-home": "^2.0.0",
     "vue-template-compiler": "^2.5.13"
