@@ -5,7 +5,7 @@
     "lint": "eslint \"src/**/*.ts\"",
     "check-types": "tsc",
     "precommit": "lint-staged",
-    "format": "prettier-eslint \"src/**/*.ts\" --write",
+    "format": "prettier \"src/**/*.ts\" --write",
     "test": "mocha --require ./babel-register './src/**/*.spec.ts'",
     "test-circle": "mocha --require ./babel-register --reporter mocha-circleci-reporter './src/**/*.spec.ts'",
     "test-appveyor": "mocha --require ./babel-register --reporter mocha-appveyor-reporter \"./src/**/*.spec.ts\"",
@@ -110,14 +110,14 @@
     "mocha-circleci-reporter": "0.0.3",
     "mocha-junit-reporter": "^1.13.0",
     "mock-fs": "^4.8.0",
-    "prettier-eslint": "^9.0.0",
-    "prettier-eslint-cli": "^5.0.0",
+    "prettier": "^1.18.2",
     "rewire": "^4.0.1",
     "sinon": "^6.0.1"
   },
   "lint-staged": {
     "*.{ts,js,css}": [
       "prettier --write",
+      "eslint --fix",
       "git add"
     ]
   }
