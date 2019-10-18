@@ -24,6 +24,7 @@ module.exports = function detective(fileContent, syntax) {
 
   const ast = csstree.parse(fileContent, {
     onParseError(error) {
+      // @ts-ignore FIXME
       handleError(error);
     }
   });
