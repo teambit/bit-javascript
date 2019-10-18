@@ -20,8 +20,8 @@ import {
 } from './types/dependency-tree-type';
 
 export type LinkFile = {
-  file: string,
-  importSpecifiers: ImportSpecifier[]
+  file: string;
+  importSpecifiers: ImportSpecifier[];
 };
 
 /**

@@ -42,17 +42,17 @@ const PackageJsonPropsNames = [
 ];
 
 export type PackageJsonProps = {
-  name?: string,
-  version?: string,
-  homepage?: string,
-  main?: string,
-  dependencies?: Record<string, any>,
-  devDependencies?: Record<string, any>,
-  peerDependencies?: Record<string, any>,
-  license?: string,
-  scripts?: Record<string, any>,
-  workspaces: string[],
-  private?: boolean
+  name?: string;
+  version?: string;
+  homepage?: string;
+  main?: string;
+  dependencies?: Record<string, any>;
+  devDependencies?: Record<string, any>;
+  peerDependencies?: Record<string, any>;
+  license?: string;
+  scripts?: Record<string, any>;
+  workspaces: string[];
+  private?: boolean;
 };
 
 export default class PackageJson {

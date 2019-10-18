@@ -12,20 +12,20 @@ import { ImportSpecifier, Specifier, LinkFile } from './types/dependency-tree-ty
 const debug = require('debug')('path-map');
 
 export type PathMapDependency = {
-  importSource: string, // dependency path as it has been received from dependency-tree lib
-  isCustomResolveUsed?: boolean, // whether a custom resolver, such as an alias "@" for "src" dir, is used
-  resolvedDep: string, // path relative to consumer root (after convertPathMapToRelativePaths() )
-  importSpecifiers?: Specifier[], // relevant for ES6 and TS
-  linkFile?: boolean,
-  realDependencies?: LinkFile[] // in case it's a link-file
+  importSource: string; // dependency path as it has been received from dependency-tree lib
+  isCustomResolveUsed?: boolean; // whether a custom resolver, such as an alias "@" for "src" dir, is used
+  resolvedDep: string; // path relative to consumer root (after convertPathMapToRelativePaths() )
+  importSpecifiers?: Specifier[]; // relevant for ES6 and TS
+  linkFile?: boolean;
+  realDependencies?: LinkFile[]; // in case it's a link-file
 };
 
 /**
  * PathMap is used to get the ImportSpecifiers from dependency-tree library
  */
 export type PathMapItem = {
-  file: string, // path relative to consumer root (after convertPathMapToRelativePaths() )
-  dependencies: PathMapDependency[]
+  file: string; // path relative to consumer root (after convertPathMapToRelativePaths() )
+  dependencies: PathMapDependency[];
 };
 
 export function convertPathMapToRelativePaths(pathMap: PathMapItem[], baseDir: string): PathMapItem[] {
@@ -146,7 +146,7 @@ function getDependenciesFromLinkFileIfExists(
     return null;
   }
   const linkFiles = [];
-  dependencies.forEach((dep: { file: string, importSpecifier: ImportSpecifier }) => {
+  dependencies.forEach((dep: { file: string; importSpecifier: ImportSpecifier }) => {
     const existingFile = linkFiles.find(linkFile => linkFile.file === dep.file);
     if (existingFile) {
       existingFile.importSpecifiers.push(dep.importSpecifier);

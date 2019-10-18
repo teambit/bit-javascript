@@ -43,18 +43,18 @@ const resolveExtensions = Object.keys(defaultLookups).concat(['.d.ts', '.json', 
 const styleExtensions = ['.scss', '.sass', '.less', '.css'];
 
 type Options = {
-  dependency: string, // previous name was "partial"
-  filename: string,
-  directory: string,
-  config: Record<string, any>,
-  webpackConfig?: Record<string, any>,
-  configPath?: string,
-  resolveConfig?: Record<string, any>,
-  isScript?: boolean, // relevant for Vue files
-  ast?: string,
-  ext?: string,
-  content?: string,
-  wasCustomResolveUsed?: boolean
+  dependency: string; // previous name was "partial"
+  filename: string;
+  directory: string;
+  config: Record<string, any>;
+  webpackConfig?: Record<string, any>;
+  configPath?: string;
+  resolveConfig?: Record<string, any>;
+  isScript?: boolean; // relevant for Vue files
+  ast?: string;
+  ext?: string;
+  content?: string;
+  wasCustomResolveUsed?: boolean;
 };
 
 module.exports = function cabinet(options: Options) {

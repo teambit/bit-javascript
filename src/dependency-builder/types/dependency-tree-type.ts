@@ -6,9 +6,9 @@
  * Conversely, `import { foo } from './bar' `, here, "foo" is non-default.
  */
 export type Specifier = {
-  isDefault: boolean,
-  name: string,
-  exported?: boolean
+  isDefault: boolean;
+  name: string;
+  exported?: boolean;
 };
 
 /**
@@ -17,54 +17,54 @@ export type Specifier = {
  * the import-specifier name, which is "foo" to generate the link correctly.
  */
 export type ImportSpecifier = {
-  mainFile: Specifier,
-  linkFile?: Specifier // relevant only when the dependency is a link file (e.g. index.js which import and export the variable from other file)
+  mainFile: Specifier;
+  linkFile?: Specifier; // relevant only when the dependency is a link file (e.g. index.js which import and export the variable from other file)
 };
 
 export type FileObject = {
-  file: string,
-  importSpecifiers?: ImportSpecifier[],
-  importSource: string,
-  isCustomResolveUsed?: boolean,
-  isLink?: boolean,
-  linkDependencies?: Record<string, any>[]
+  file: string;
+  importSpecifiers?: ImportSpecifier[];
+  importSource: string;
+  isCustomResolveUsed?: boolean;
+  isLink?: boolean;
+  linkDependencies?: Record<string, any>[];
 };
 
 export type LinkFile = {
-  file: string,
-  importSpecifiers: ImportSpecifier[]
+  file: string;
+  importSpecifiers: ImportSpecifier[];
 };
 
 type MissingType = 'files' | 'packages' | 'bits';
 
 export type DependenciesResults = {
-  files?: FileObject[],
-  packages?: { [packageName: string]: string }, // pkgName: pkgVersion
-  unidentifiedPackages?: string[],
-  bits?: Record<string, any>,
-  error?: Error, // error.code is either PARSING_ERROR or RESOLVE_ERROR
+  files?: FileObject[];
+  packages?: { [packageName: string]: string }; // pkgName: pkgVersion
+  unidentifiedPackages?: string[];
+  bits?: Record<string, any>;
+  error?: Error; // error.code is either PARSING_ERROR or RESOLVE_ERROR
   // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
-  missing?: { [MissingType]: string[] }
+  missing?: { [MissingType]: string[] };
 };
 
 export type Tree = {
-  [filePath: string]: DependenciesResults
+  [filePath: string]: DependenciesResults;
 };
 
 export type ResolveModulesConfig = {
-  modulesDirectories: string[],
+  modulesDirectories: string[];
   // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
-  aliases: { [string]: string } // e.g. { '@': 'src' }
+  aliases: { [string]: string }; // e.g. { '@': 'src' }
 };
 
 export type DependencyTreeParams = {
-  baseDir: string,
-  consumerPath: string,
-  filePaths: string[],
-  bindingPrefix: string,
-  resolveModulesConfig: ResolveModulesConfig | null | undefined,
-  visited: Record<string, any> | null | undefined,
-  cacheProjectAst: Record<string, any> | null | undefined
+  baseDir: string;
+  consumerPath: string;
+  filePaths: string[];
+  bindingPrefix: string;
+  resolveModulesConfig: ResolveModulesConfig | null | undefined;
+  visited: Record<string, any> | null | undefined;
+  cacheProjectAst: Record<string, any> | null | undefined;
 };
