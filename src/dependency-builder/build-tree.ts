@@ -45,7 +45,7 @@ const byType = (list, bindingPrefix) => {
  * @param {any} packageFullPath full path to the package
  * @returns {Object} name and version of the package
  */
-export function resolveNodePackage(cwd: string, packageFullPath: string): Object {
+export function resolveNodePackage(cwd: string, packageFullPath: string): Record<string, any> {
   const NODE_MODULES = 'node_modules';
   const result = {};
   // Start by searching in the component dir and up from there
@@ -204,7 +204,7 @@ export function resolveModulePath(nmPath: string, workingDir: string, root: stri
  * @param {string []} packagesNames
  * @returns new object with found and missing
  */
-function findPackagesInPackageJson(packageJson: Object, packagesNames: string[]) {
+function findPackagesInPackageJson(packageJson: Record<string, any>, packagesNames: string[]) {
   const { dependencies, devDependencies, peerDependencies } = packageJson;
   const foundPackages = {};
   const mergedDependencies = Object.assign({}, dependencies, devDependencies, peerDependencies);

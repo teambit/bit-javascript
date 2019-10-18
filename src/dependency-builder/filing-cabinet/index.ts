@@ -45,10 +45,10 @@ type Options = {
   dependency: string, // previous name was "partial"
   filename: string,
   directory: string,
-  config: Object,
-  webpackConfig?: Object,
+  config: Record<string, any>,
+  webpackConfig?: Record<string, any>,
   configPath?: string,
-  resolveConfig?: Object,
+  resolveConfig?: Record<string, any>,
   isScript?: boolean, // relevant for Vue files
   ast?: string,
   ext?: string,

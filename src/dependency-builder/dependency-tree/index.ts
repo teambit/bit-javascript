@@ -2,8 +2,8 @@
  * this file had been forked from https://github.com/dependents/node-dependency-tree
  */
 
-const precinct = require('../precinct');
 const fs = require('fs');
+const precinct = require('../precinct');
 const cabinet = require('../filing-cabinet');
 const debug = require('debug')('tree');
 const Config = require('./Config');

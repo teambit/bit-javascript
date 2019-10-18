@@ -1,5 +1,5 @@
-const detective = require('./');
 const assert = require('assert');
+const detective = require('./');
 
 describe('detective-less', function () {
   function test(src, deps, opts) {

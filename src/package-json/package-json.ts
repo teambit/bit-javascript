@@ -9,10 +9,10 @@ import { PACKAGE_JSON } from '../constants';
 function composePath(componentRootFolder: string) {
   return path.join(componentRootFolder, PACKAGE_JSON);
 }
-function convertComponentsIdToValidPackageName(registryPrefix: string, id: string): Object {
+function convertComponentsIdToValidPackageName(registryPrefix: string, id: string): Record<string, any> {
   return `${registryPrefix}/${id.replace(/\//g, '.')}`;
 }
-function convertComponentsToValidPackageNames(registryPrefix: string, bitDependencies: Object): Object {
+function convertComponentsToValidPackageNames(registryPrefix: string, bitDependencies: Record<string, any>): Record<string, any> {
   const obj = {};
   if (R.isEmpty(bitDependencies) || R.isNil(bitDependencies)) return obj;
   Object.keys(bitDependencies).forEach((key) => {
@@ -41,11 +41,11 @@ export type PackageJsonProps = {
   version?: string,
   homepage?: string,
   main?: string,
-  dependencies?: Object,
-  devDependencies?: Object,
-  peerDependencies?: Object,
+  dependencies?: Record<string, any>,
+  devDependencies?: Record<string, any>,
+  peerDependencies?: Record<string, any>,
   license?: string,
-  scripts?: Object,
+  scripts?: Record<string, any>,
   workspaces: string[],
   private?: boolean
 };
@@ -55,12 +55,12 @@ export default class PackageJson {
   version: string;
   homepage: string;
   main: string;
-  dependencies: Object;
-  devDependencies: Object;
-  peerDependencies: Object;
+  dependencies: Record<string, any>;
+  devDependencies: Record<string, any>;
+  peerDependencies: Record<string, any>;
   componentRootFolder: string; // path where to write the package.json
   license: string;
-  scripts: Object;
+  scripts: Record<string, any>;
   workspaces: string[];
 
   constructor(
@@ -91,7 +91,7 @@ export default class PackageJson {
     this.workspaces = workspaces;
   }
 
-  toPlainObject(): Object {
+  toPlainObject(): Record<string, any> {
     const self = this;
     const result = {};
     const addToResult = (propName) => {
@@ -103,12 +103,12 @@ export default class PackageJson {
     return result;
   }
 
-  toJson(readable: boolean = true) {
+  toJson(readable = true) {
     if (!readable) return JSON.stringify(this.toPlainObject());
     return JSON.stringify(this.toPlainObject(), null, 4);
   }
 
-  addDependencies(bitDependencies: Object, registryPrefix: string) {
+  addDependencies(bitDependencies: Record<string, any>, registryPrefix: string) {
     this.dependencies = Object.assign(
       {},
       this.dependencies,
@@ -116,7 +116,7 @@ export default class PackageJson {
     );
   }
 
-  addDevDependencies(bitDevDependencies: Object, registryPrefix: string) {
+  addDevDependencies(bitDevDependencies: Record<string, any>, registryPrefix: string) {
     this.devDependencies = Object.assign(
       {},
       this.devDependencies,
@@ -124,7 +124,7 @@ export default class PackageJson {
     );
   }
 
-  static hasExisting(componentRootFolder: string, throws?: boolean = false): boolean {
+  static hasExisting(componentRootFolder: string, throws? = false): boolean {
     const packageJsonPath = composePath(componentRootFolder);
     const exists = fs.pathExistsSync(packageJsonPath);
     if (!exists && throws) {
@@ -149,18 +149,18 @@ export default class PackageJson {
     return this.load(componentRootFolder);
   }
 
-  static fromPlainObject(componentRootFolder: string, object: Object) {
+  static fromPlainObject(componentRootFolder: string, object: Record<string, any>) {
     return new PackageJson(componentRootFolder, object);
   }
 
-  static async load(componentRootFolder: string, throwError: boolean = true): Promise<PackageJson> {
+  static async load(componentRootFolder: string, throwError = true): Promise<PackageJson> {
     const composedPath = composePath(componentRootFolder);
     if (!PackageJson.hasExisting(componentRootFolder, throwError)) return null;
     const componentJsonObject = await fs.readJson(composedPath);
     return new PackageJson(componentRootFolder, componentJsonObject);
   }
 
-  static loadSync(componentRootFolder: string, throwError: boolean = true): PackageJson {
+  static loadSync(componentRootFolder: string, throwError = true): PackageJson {
     const composedPath = composePath(componentRootFolder);
     if (!PackageJson.hasExisting(componentRootFolder, throwError)) return null;
     const componentJsonObject = fs.readJsonSync(composedPath);
@@ -220,7 +220,7 @@ export default class PackageJson {
   /*
    * save package.json in path
    */
-  static saveRawObject(path: string, obj: Object) {
+  static saveRawObject(path: string, obj: Record<string, any>) {
     return fs.outputJSON(composePath(path), obj, { spaces: 2 });
   }
 

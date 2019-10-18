@@ -27,7 +27,7 @@ export type FileObject = {
   importSource: string,
   isCustomResolveUsed?: boolean,
   isLink?: boolean,
-  linkDependencies?: Object[]
+  linkDependencies?: Record<string, any>[]
 };
 
 export type LinkFile = {
@@ -41,7 +41,7 @@ export type DependenciesResults = {
   files?: FileObject[],
   packages?: { [packageName: string]: string }, // pkgName: pkgVersion
   unidentifiedPackages?: string[],
-  bits?: Object,
+  bits?: Record<string, any>,
   error?: Error, // error.code is either PARSING_ERROR or RESOLVE_ERROR
   missing?: { [MissingType]: string[] }
 };
@@ -61,6 +61,6 @@ export type DependencyTreeParams = {
   filePaths: string[],
   bindingPrefix: string,
   resolveModulesConfig: ResolveModulesConfig | null | undefined,
-  visited: Object | null | undefined,
-  cacheProjectAst: Object | null | undefined
+  visited: Record<string, any> | null | undefined,
+  cacheProjectAst: Record<string, any> | null | undefined
 };
