@@ -8,7 +8,7 @@ type Loader = {
   off: () => Loader | null,
   start: (text: string | null | undefined) => Loader | null,
   stop: () => Loader | null,
-  setText: string => Loader | null,
+  setText: (text: string | null | undefined) => Loader | null | undefined,
   get: () => Loader | null
 };
 
