@@ -220,7 +220,7 @@ export default class PackageJson {
   /*
    * load package.json from path
    */
-  static getPackageJson(path: string) {
+  static async getPackageJson(path: string) {
     const getRawObject = () => fs.readJson(composePath(path));
     const exist = PackageJson.hasExisting(path);
     if (exist) return getRawObject();
