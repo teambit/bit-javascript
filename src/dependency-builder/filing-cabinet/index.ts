@@ -316,9 +316,10 @@ function commonJSLookup(options: Options) {
 
 function resolveWebpackPath(dependency, filename, directory, webpackConfig) {
   webpackConfig = path.resolve(webpackConfig);
-
+  let loadedConfig;
   try {
-    var loadedConfig = require(webpackConfig);
+    // eslint-disable-next-line import/no-dynamic-require, global-require
+    loadedConfig = require(webpackConfig);
 
     if (typeof loadedConfig === 'function') {
       loadedConfig = loadedConfig();

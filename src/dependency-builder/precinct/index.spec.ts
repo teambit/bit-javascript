@@ -7,6 +7,7 @@ const rewire = require('rewire');
 const sinon = require('sinon');
 
 const fixtures = `${__dirname}/../../../fixtures/precinct`;
+// eslint-disable-next-line import/no-dynamic-require, global-require
 const ast = require(`${fixtures}/exampleAST`);
 const precinct = rewire('./');
 
@@ -22,7 +23,7 @@ describe('node-precinct', () => {
   });
 
   it('dangles off a given ast', () => {
-    const deps = precinct(ast);
+    precinct(ast);
     assert.deepEqual(precinct.ast, ast);
   });
 
@@ -200,7 +201,7 @@ describe('node-precinct', () => {
         const stub = sinon.stub().returns([]);
         const revert = precinct.__set__('precinct', stub);
 
-        const deps = precinct.paperwork(`${fixtures}/amd.js`, {
+        precinct.paperwork(`${fixtures}/amd.js`, {
           amd: {
             skipLazyLoaded: true
           }

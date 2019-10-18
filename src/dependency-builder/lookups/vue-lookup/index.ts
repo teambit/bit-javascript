@@ -13,6 +13,7 @@ const languageMap = {
 };
 module.exports = function(options) {
   const { dependency, filename, isScript } = options;
+  // eslint-disable-next-line import/no-dynamic-require, global-require
   const cabinet = require('../../filing-cabinet');
 
   const fileContent = fs.readFileSync(filename);

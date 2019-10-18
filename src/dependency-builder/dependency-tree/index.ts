@@ -1,14 +1,13 @@
 /**
  * this file had been forked from https://github.com/dependents/node-dependency-tree
  */
-
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
+const debug = require('debug')('tree');
 // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const fs = require('fs');
 const precinct = require('../precinct');
 // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const cabinet = require('../filing-cabinet');
-// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
-const debug = require('debug')('tree');
 // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const Config = require('./Config');
 

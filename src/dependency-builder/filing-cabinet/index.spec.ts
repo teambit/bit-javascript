@@ -9,7 +9,9 @@ const path = require('path');
 // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const cabinet = rewire('./');
 const fixtures = `${__dirname}/../../../fixtures/filing-cabinet`;
+// eslint-disable-next-line import/no-dynamic-require, global-require
 const mockedFiles = require(`${fixtures}/mockedJSFiles`);
+// eslint-disable-next-line import/no-dynamic-require, global-require
 const mockAST = require(`${fixtures}/ast`);
 const mockRootDir = path.join(__dirname, '..', '..', '..');
 
@@ -202,7 +204,7 @@ describe('filing-cabinet', () => {
 
       it('adds the directory to the require resolution paths', () => {
         const directory = 'js/commonjs/';
-        const result = cabinet({
+        cabinet({
           dependency: 'foobar',
           filename: 'js/commonjs/foo.js',
           directory
@@ -474,14 +476,14 @@ describe('filing-cabinet', () => {
       const stub = sinon.stub().returns('foo.foobar');
       cabinet.register('.foobar', stub);
 
-      const path = cabinet({
+      const pathResult = cabinet({
         dependency: './bar',
         filename: 'js/amd/foo.foobar',
         directory: 'js/amd/'
       });
 
       assert.ok(stub.called);
-      assert.equal(path, 'foo.foobar');
+      assert.equal(pathResult, 'foo.foobar');
     });
 
     it('allows does not break default resolvers', () => {

@@ -1,4 +1,5 @@
 module.exports = function(src, options = {}) {
+  // eslint-disable-next-line import/no-dynamic-require, global-require
   const compiler = require('vue-template-compiler');
   const finalDependencies = {};
   const addDependencies = (dependencies, isScript) => {
@@ -18,6 +19,7 @@ module.exports = function(src, options = {}) {
 
   const { script, styles } = compiler.parseComponent(src, { pad: 'line' });
   // it must be required here, otherwise, it'll be a cyclic dependency
+  // eslint-disable-next-line import/no-dynamic-require, global-require
   const precinct = require('../../precinct');
   if (script) {
     if (script.lang) {

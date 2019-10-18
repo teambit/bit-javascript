@@ -17,8 +17,8 @@ const isWin = os.platform() === 'win32';
  * @param  {String} path
  * @return {Boolean}
  */
-function isNpmPathFunc(path) {
-  return path.indexOf('node_modules') >= 0;
+function isNpmPathFunc(pathStr) {
+  return pathStr.indexOf('node_modules') >= 0;
 }
 
 /**

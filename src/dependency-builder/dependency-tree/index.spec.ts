@@ -223,6 +223,7 @@ describe('dependencyTree', function() {
     const tree = dependencyTree({ filename, directory });
 
     for (const node in tree.nodes) {
+      // eslint-disable-line
       assert(node.indexOf(process.cwd()) !== -1);
     }
   });

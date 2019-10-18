@@ -9,7 +9,7 @@ import { PACKAGE_JSON } from '../constants';
 function composePath(componentRootFolder: string) {
   return path.join(componentRootFolder, PACKAGE_JSON);
 }
-function convertComponentsIdToValidPackageName(registryPrefix: string, id: string): Record<string, any> {
+function convertComponentsIdToValidPackageName(registryPrefix: string, id: string): string {
   // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   return `${registryPrefix}/${id.replace(/\//g, '.')}`;
 }
@@ -97,10 +97,9 @@ export default class PackageJson {
   }
 
   toPlainObject(): Record<string, any> {
-    const self = this;
     const result = {};
     const addToResult = propName => {
-      result[propName] = self[propName];
+      result[propName] = this[propName];
     };
 
     R.forEach(addToResult, PackageJsonPropsNames);
@@ -185,12 +184,13 @@ export default class PackageJson {
     const parentsArr = parents(dir);
     let i;
     for (i = 0; i < parentsArr.length; i++) {
+      // eslint-disable-line
       const config = `${parentsArr[i]}/package.json`;
       try {
         if (fs.lstatSync(config).isFile()) {
           return config;
         }
-      } catch (e) {}
+      } catch (e) {} // eslint-disable-line
     }
     return null;
   }
@@ -204,6 +204,7 @@ export default class PackageJson {
   static findPackage(dir, addPaths) {
     const pathToConfig = this.findPath(dir);
     let configJSON = null;
+    // eslint-disable-next-line import/no-dynamic-require, global-require
     if (pathToConfig !== null) configJSON = require(path.resolve(pathToConfig));
     if (configJSON && addPaths) {
       configJSON.paths = {
@@ -220,17 +221,18 @@ export default class PackageJson {
   /*
    * load package.json from path
    */
-  static async getPackageJson(path: string) {
-    const getRawObject = () => fs.readJson(composePath(path));
-    const exist = PackageJson.hasExisting(path);
+  static async getPackageJson(pathStr: string) {
+    const getRawObject = () => fs.readJson(composePath(pathStr));
+    const exist = PackageJson.hasExisting(pathStr);
     if (exist) return getRawObject();
+    return null;
   }
 
   /*
    * save package.json in path
    */
-  static saveRawObject(path: string, obj: Record<string, any>) {
-    return fs.outputJSON(composePath(path), obj, { spaces: 2 });
+  static saveRawObject(pathStr: string, obj: Record<string, any>) {
+    return fs.outputJSON(composePath(pathStr), obj, { spaces: 2 });
   }
 
   /*

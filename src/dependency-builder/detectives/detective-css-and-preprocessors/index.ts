@@ -10,6 +10,7 @@ const isUrl = require('is-url');
  * @return {String[]}
  */
 module.exports = function detective(fileContent, syntax) {
+  // eslint-disable-next-line import/no-dynamic-require, global-require
   const debug = require('debug')(`detective-${syntax}`);
   debug(`parsing ${syntax} syntax`);
   if (typeof fileContent === 'undefined') {
@@ -133,7 +134,7 @@ function clearUrlImports(dependencies) {
   return dependencies.filter(Boolean);
 }
 
-function handleError(error) {
+function handleError() {
   // handle parse error
   return false;
 }
