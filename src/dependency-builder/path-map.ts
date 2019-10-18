@@ -7,7 +7,7 @@
  */
 import R from 'ramda';
 import { processPath } from './generate-tree-madge';
-import type { ImportSpecifier, Specifier, LinkFile } from './types/dependency-tree-type';
+import { ImportSpecifier, Specifier, LinkFile } from './types/dependency-tree-type';
 
 const debug = require('debug')('path-map');
 

@@ -1,5 +1,5 @@
 // @flow
-import type { Command } from './types';
+import { Command } from './types';
 import { getDependenciesAction } from '../../actions';
 import { DEFAULT_BINDINGS_PREFIX } from '../../constants';
 

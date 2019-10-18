@@ -10,8 +10,8 @@ import generateTree, { processPath } from './generate-tree-madge';
 import PackageJson from '../package-json/package-json';
 import { DEFAULT_BINDINGS_PREFIX } from '../constants';
 import { getPathMapWithLinkFilesData, convertPathMapToRelativePaths } from './path-map';
-import type { PathMapItem } from './path-map';
-import type {
+import { PathMapItem } from './path-map';
+import {
   Tree,
   FileObject,
   ImportSpecifier,
