@@ -22,7 +22,7 @@ const Config = require('./Config');
  * @param {Array} [options.nonExistent] - List of partials that do not exist
  * @return {Object}
  */
-module.exports = function (options) {
+module.exports = function(options) {
   const config = new Config(options);
 
   if (!fs.existsSync(config.filename)) {
@@ -45,7 +45,7 @@ module.exports = function (options) {
  *
  * Params are those of module.exports
  */
-module.exports.toList = function (options) {
+module.exports.toList = function(options) {
   options.isListForm = true;
 
   return module.exports(options);
@@ -59,7 +59,7 @@ module.exports.toList = function (options) {
  * @param  {Config} config
  * @return {Array}
  */
-module.exports._getDependencies = function (config) {
+module.exports._getDependencies = function(config) {
   let dependenciesRaw; // from some detectives it comes as an array, from some it is an object
   const precinctOptions = config.detectiveConfig;
   precinctOptions.includeCore = false;
@@ -181,7 +181,7 @@ function traverse(config) {
     if (config.filter) {
       debug('using filter function to filter out dependencies');
       debug(`number of dependencies before filtering: ${dependencies.length}`);
-      dependencies = dependencies.filter(function (filePath) {
+      dependencies = dependencies.filter(function(filePath) {
         return localConfig.filter(filePath, localConfig.filename);
       });
       debug(`number of dependencies after filtering: ${dependencies.length}`);
@@ -222,7 +222,7 @@ function traverse(config) {
     if (config.visited[dependency].error) {
       config.errors[dependency] = config.visited[dependency].error;
     }
-    dependencies.forEach((d) => {
+    dependencies.forEach(d => {
       if (!tree[d]) dependenciesStack.push(d);
     });
   }

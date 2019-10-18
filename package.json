@@ -116,7 +116,7 @@
     "sinon": "^6.0.1"
   },
   "lint-staged": {
-    "*.{js,css}": [
+    "*.{ts,js,css}": [
       "prettier-eslint --write",
       "git add"
     ]

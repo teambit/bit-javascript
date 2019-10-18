@@ -9,7 +9,7 @@ const languageMap = {
   css: 'scss',
   stylus: 'styl'
 };
-module.exports = function (options) {
+module.exports = function(options) {
   const { dependency, filename, isScript } = options;
   const cabinet = require('../../filing-cabinet');
 
@@ -26,7 +26,7 @@ module.exports = function (options) {
       })
     );
   }
-  const stylesResult = styles.map((style) => {
+  const stylesResult = styles.map(style => {
     const styleExt = style.lang ? languageMap[style.lang] || style.lang : DEFAULT_STYLE_LANG;
     return cabinet(
       Object.assign(options, {

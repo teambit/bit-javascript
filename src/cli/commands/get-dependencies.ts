@@ -3,7 +3,7 @@ import { Command } from './types';
 import { getDependenciesAction } from '../../actions';
 import { DEFAULT_BINDINGS_PREFIX } from '../../constants';
 
-const report = (data) => {
+const report = data => {
   if (!data) return 'No dependencies found!';
   return JSON.stringify(data, null, '  ');
 };

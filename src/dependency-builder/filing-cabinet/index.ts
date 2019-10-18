@@ -102,7 +102,7 @@ module.exports.supportedFileExtensions = Object.keys(defaultLookups);
  * @param  {String} extension - The file extension that should use the resolver
  * @param  {Function} lookupStrategy - A resolver of dependency paths
  */
-module.exports.register = function (extension, lookupStrategy) {
+module.exports.register = function(extension, lookupStrategy) {
   defaultLookups[extension] = lookupStrategy;
 
   if (this.supportedFileExtensions.indexOf(extension) === -1) {
@@ -120,7 +120,7 @@ module.exports.register = function (extension, lookupStrategy) {
  * @param  {Object} options.ast
  * @return {String}
  */
-module.exports._getJSType = function (options) {
+module.exports._getJSType = function(options) {
   options = options || {};
 
   if (options.config) {

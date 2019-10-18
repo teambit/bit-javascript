@@ -8,9 +8,9 @@ type Loader = {
   off: () => Loader | null,
   start: (text: string | null | undefined) => Loader | null,
   stop: () => Loader | null,
-  setText: (string) => Loader | null,
+  setText: string => Loader | null,
   get: () => Loader | null
-}
+};
 
 const start = (text: string | null | undefined): Loader | null | undefined => {
   if (_loader) {
@@ -50,8 +50,7 @@ const loader: Loader = {
   stop,
   start,
   setText,
-  get,
+  get
 };
 
 export default loader;
-

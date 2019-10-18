@@ -17,7 +17,11 @@ function findrc(pathToNpmrc: string) {
   return userNpmrc;
 }
 
-function mergeOrCreateConfig(token: string, url: string, config: Array<Record<string, any>> = []): Array<Record<string, any>> {
+function mergeOrCreateConfig(
+  token: string,
+  url: string,
+  config: Array<Record<string, any>> = []
+): Array<Record<string, any>> {
   const strippedUrl = url.replace(/(^\w+:|^)\/\//, '');
   const iniReg = iniBuilder.find(config, `${DEFAULT_BINDINGS_PREFIX}:registry`);
   const iniToken = iniBuilder.find(config, `//${strippedUrl}/:_authToken`);

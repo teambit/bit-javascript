@@ -89,7 +89,7 @@ describe('node-precinct', () => {
     expect(css).to.have.property('another.css');
   });
 
-  it('grabs dependencies of scss files', function () {
+  it('grabs dependencies of scss files', function() {
     const scss = precinct(read('styles.scss'), 'scss');
     assert.deepEqual(scss, ['_foo', 'baz.scss']);
   });

@@ -21,7 +21,7 @@ require('../../dependency-builder/detectives/parser-helper');
 const dependencyTree = rewire('./');
 const fixtures = path.resolve(`${__dirname}/../../../fixtures/dependency-tree`);
 
-describe('dependencyTree', function () {
+describe('dependencyTree', function() {
   this.timeout(8000);
   function testTreesForFormat(format, ext = '.js') {
     it('returns an object form of the dependency tree for a file', () => {
@@ -542,7 +542,7 @@ describe('dependencyTree', function () {
       this._root = path.join(__dirname, '../');
       this._webpackConfig = `${this._root}/webpack.config.js`;
 
-      this._testResolution = (name) => {
+      this._testResolution = name => {
         const results = dependencyTree.toList({
           filename: `${fixtures}/webpack/${name}.js`,
           directory: this._root,

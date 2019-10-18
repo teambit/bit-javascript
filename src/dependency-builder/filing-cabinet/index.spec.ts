@@ -206,7 +206,7 @@ describe('filing-cabinet', () => {
         });
 
         assert.ok(
-          require.main.paths.some(function (p) {
+          require.main.paths.some(function(p) {
             return p.indexOf(path.normalize(directory)) !== -1;
           })
         );

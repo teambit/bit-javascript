@@ -29,7 +29,7 @@ module.exports = function detective(fileContent, syntax) {
 
   detective.ast = ast;
 
-  csstree.walk(ast, function (node) {
+  csstree.walk(ast, function(node) {
     if (!isImportStatement(node)) {
       return;
     }
@@ -68,7 +68,7 @@ function extractDependencies(importStatementNode) {
   // allows imports with no semicolon
   if (importStatementNode.prelude.type === 'Raw' && importStatementNode.prelude.value.includes('@import')) {
     let imports = importStatementNode.prelude.value.split('@import');
-    imports = imports.map((imp) => {
+    imports = imports.map(imp => {
       return imp
         .replace(/["']/g, '')
         .replace(/\n/g, '')
@@ -82,7 +82,7 @@ function extractDependencies(importStatementNode) {
   if (importStatementNode.prelude.type === 'Raw' && importStatementNode.prelude.value.includes(',')) {
     importStatementNode.prelude.value = clearLessImportsRules(importStatementNode.prelude.value);
     let imports = importStatementNode.prelude.value.split(',');
-    imports = imports.map((imp) => {
+    imports = imports.map(imp => {
       return imp
         .replace(/["']/g, '')
         .replace(/\n/g, '')
@@ -103,7 +103,7 @@ function extractDependencies(importStatementNode) {
 function clearLessImportsRules(importString) {
   // list from http://lesscss.org/features/#import-atrules-feature-import-options
   const lessImportOptions = ['reference', 'inline', 'less', 'css', 'once', 'multiple', 'optional'];
-  const toClearSepicalImports = lessImportOptions.some((imp) => {
+  const toClearSepicalImports = lessImportOptions.some(imp => {
     if (importString.includes(imp)) {
       return true;
     }
@@ -121,7 +121,7 @@ function clearLessImportsRules(importString) {
 }
 
 function clearUrlImports(dependencies) {
-  dependencies = dependencies.map((imp) => {
+  dependencies = dependencies.map(imp => {
     if (isUrl(imp)) {
       return null;
     }

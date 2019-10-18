@@ -1,9 +1,9 @@
 const stylable = require('stylable');
 
-module.exports = function (src, options = {}) {
+module.exports = function(src, options = {}) {
   const css = stylable.safeParse(src);
   const dependencies = {};
-  const addDependency = (dependency) => {
+  const addDependency = dependency => {
     if (!dependencies[dependency]) {
       dependencies[dependency] = {};
     }
@@ -16,7 +16,7 @@ module.exports = function (src, options = {}) {
     }
   };
 
-  css.walkRules((rule) => {
+  css.walkRules(rule => {
     const stFrom = rule.nodes.find(node => node.prop === '-st-from');
     if (!stFrom) return;
     const stFromValue = stFrom.value.replace(/["']/g, '');

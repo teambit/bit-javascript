@@ -34,7 +34,7 @@ function logAndExit(str) {
 
 function start() {
   program.version(pkg.version).description('bit driver for javascript');
-  commands.forEach((c) => {
+  commands.forEach(c => {
     const currentCommand = program.command(c.name).description(c.description);
 
     if (c.options && Array.isArray(c.options)) {

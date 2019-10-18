@@ -12,10 +12,13 @@ function composePath(componentRootFolder: string) {
 function convertComponentsIdToValidPackageName(registryPrefix: string, id: string): Record<string, any> {
   return `${registryPrefix}/${id.replace(/\//g, '.')}`;
 }
-function convertComponentsToValidPackageNames(registryPrefix: string, bitDependencies: Record<string, any>): Record<string, any> {
+function convertComponentsToValidPackageNames(
+  registryPrefix: string,
+  bitDependencies: Record<string, any>
+): Record<string, any> {
   const obj = {};
   if (R.isEmpty(bitDependencies) || R.isNil(bitDependencies)) return obj;
-  Object.keys(bitDependencies).forEach((key) => {
+  Object.keys(bitDependencies).forEach(key => {
     const name = convertComponentsIdToValidPackageName(registryPrefix, key);
     obj[name] = bitDependencies[key];
   });
@@ -94,7 +97,7 @@ export default class PackageJson {
   toPlainObject(): Record<string, any> {
     const self = this;
     const result = {};
-    const addToResult = (propName) => {
+    const addToResult = propName => {
       result[propName] = self[propName];
     };
 
@@ -209,8 +212,8 @@ export default class PackageJson {
   }
 
   /*
- * load package.json from path
- */
+   * load package.json from path
+   */
   static getPackageJson(path: string) {
     const getRawObject = () => fs.readJson(composePath(path));
     const exist = PackageJson.hasExisting(path);
@@ -279,7 +282,7 @@ export default class PackageJson {
   static async removeComponentsFromDependencies(rootDir: string, registryPrefix, componentIds: string[]) {
     const pkg = await PackageJson.getPackageJson(rootDir);
     if (pkg && pkg.dependencies) {
-      componentIds.forEach((id) => {
+      componentIds.forEach(id => {
         delete pkg.dependencies[convertComponentsIdToValidPackageName(registryPrefix, id)];
       });
       await PackageJson.saveRawObject(rootDir, pkg);

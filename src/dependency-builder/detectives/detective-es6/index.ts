@@ -11,11 +11,11 @@ const Walker = require('node-source-walk');
  * @param  {String|Object} src - File's content or AST
  * @return {String[]}
  */
-module.exports = function (src) {
+module.exports = function(src) {
   const walker = new Walker();
 
   const dependencies = {};
-  const addDependency = (dependency) => {
+  const addDependency = dependency => {
     if (!dependencies[dependency]) {
       dependencies[dependency] = {};
     }
@@ -27,8 +27,8 @@ module.exports = function (src) {
       dependencies[dependency].importSpecifiers = [importSpecifier];
     }
   };
-  const addExportedToImportSpecifier = (name) => {
-    Object.keys(dependencies).forEach((dependency) => {
+  const addExportedToImportSpecifier = name => {
+    Object.keys(dependencies).forEach(dependency => {
       if (!dependencies[dependency].importSpecifiers) return;
       const specifier = dependencies[dependency].importSpecifiers.find(i => i.name === name);
       if (specifier) specifier.exported = true;
@@ -43,13 +43,13 @@ module.exports = function (src) {
     return dependencies;
   }
 
-  walker.walk(src, function (node) {
+  walker.walk(src, function(node) {
     switch (node.type) {
       case 'ImportDeclaration':
         if (node.source && node.source.value) {
           const dependency = node.source.value;
           addDependency(dependency);
-          node.specifiers.forEach((specifier) => {
+          node.specifiers.forEach(specifier => {
             const specifierValue = {
               isDefault: specifier.type === 'ImportDefaultSpecifier',
               name: specifier.local.name
@@ -65,7 +65,7 @@ module.exports = function (src) {
           addDependency(dependency);
           if (node.specifiers) {
             // in case of "export * from" there are no node.specifiers
-            node.specifiers.forEach((specifier) => {
+            node.specifiers.forEach(specifier => {
               const specifierValue = {
                 isDefault: !specifier.local || specifier.local.name === 'default', // e.g. export { default as isArray } from './is-array';
                 name: specifier.exported.name,
@@ -75,7 +75,7 @@ module.exports = function (src) {
             });
           }
         } else if (node.specifiers && node.specifiers.length) {
-          node.specifiers.forEach((exportSpecifier) => {
+          node.specifiers.forEach(exportSpecifier => {
             addExportedToImportSpecifier(exportSpecifier.exported.name);
           });
         }

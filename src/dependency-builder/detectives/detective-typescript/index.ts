@@ -14,18 +14,18 @@ const Walker = require('node-source-walk');
  * @param  {Object} options - options to pass to the parser
  * @return {String[]}
  */
-module.exports = function (src, options = {}) {
+module.exports = function(src, options = {}) {
   options.parser = Parser;
 
   const walker = new Walker(options);
 
   const dependencies = {};
-  const addDependency = (dependency) => {
+  const addDependency = dependency => {
     if (!dependencies[dependency]) {
       dependencies[dependency] = {};
     }
   };
-  const addAngularLocalDependency = (dependency) => {
+  const addAngularLocalDependency = dependency => {
     const angularDep = isRelativeImport(dependency) ? dependency : `./${dependency}`;
     addDependency(angularDep);
   };
@@ -36,8 +36,8 @@ module.exports = function (src, options = {}) {
       dependencies[dependency].importSpecifiers = [importSpecifier];
     }
   };
-  const addExportedToImportSpecifier = (name) => {
-    Object.keys(dependencies).forEach((dependency) => {
+  const addExportedToImportSpecifier = name => {
+    Object.keys(dependencies).forEach(dependency => {
       if (!dependencies[dependency].importSpecifiers) return;
       const specifier = dependencies[dependency].importSpecifiers.find(i => i.name === name);
       if (specifier) specifier.exported = true;
@@ -52,14 +52,14 @@ module.exports = function (src, options = {}) {
     return dependencies;
   }
 
-  walker.walk(src, function (node) {
+  walker.walk(src, function(node) {
     switch (node.type) {
       case 'ImportDeclaration':
         if (node.source && node.source.value) {
           const dependency = node.source.value;
           addDependency(dependency);
 
-          node.specifiers.forEach((specifier) => {
+          node.specifiers.forEach(specifier => {
             const specifierValue = {
               isDefault: specifier.type === 'ImportDefaultSpecifier',
               name: specifier.local.name
@@ -73,7 +73,7 @@ module.exports = function (src, options = {}) {
         if (node.source && node.source.value) {
           addDependency(node.source.value);
         } else if (node.specifiers && node.specifiers.length) {
-          node.specifiers.forEach((exportSpecifier) => {
+          node.specifiers.forEach(exportSpecifier => {
             addExportedToImportSpecifier(exportSpecifier.exported.name);
           });
         }
@@ -108,7 +108,7 @@ module.exports = function (src, options = {}) {
           node.expression.arguments[0].type === 'ObjectExpression'
         ) {
           const angularComponent = node.expression.arguments[0].properties;
-          angularComponent.forEach((prop) => {
+          angularComponent.forEach(prop => {
             if (!prop.key || !prop.value) return;
             if (prop.key.name === 'templateUrl' && prop.value.type === 'Literal') {
               addAngularLocalDependency(prop.value.value);

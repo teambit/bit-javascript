@@ -39,7 +39,7 @@ function Config(options) {
   debug('visited: ', this.visited);
 }
 
-Config.prototype.clone = function () {
+Config.prototype.clone = function() {
   return new Config(this);
 };
 

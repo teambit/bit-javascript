@@ -30,7 +30,7 @@ export type LinkFile = {
  * @returns {Function} function which group the dependencies
  */
 const byType = (list, bindingPrefix) => {
-  const grouped = R.groupBy((item) => {
+  const grouped = R.groupBy(item => {
     if (item.includes(`node_modules/${bindingPrefix}`) || item.includes(`node_modules/${DEFAULT_BINDINGS_PREFIX}`)) {
       return 'bits';
     }
@@ -125,7 +125,7 @@ function groupDependencyList(list, cwd, bindingPrefix) {
   if (groups.packages) {
     const packages = {};
     const unidentifiedPackages = [];
-    groups.packages.forEach((packagePath) => {
+    groups.packages.forEach(packagePath => {
       const packageWithVersion = resolveNodePackage(cwd, path.join(cwd, packagePath));
       if (packageWithVersion) Object.assign(packages, packageWithVersion);
       else unidentifiedPackages.push(packagePath);
@@ -148,7 +148,7 @@ function groupDependencyList(list, cwd, bindingPrefix) {
  */
 function groupDependencyTree(tree, cwd, bindingPrefix) {
   const result = {};
-  Object.keys(tree).forEach((key) => {
+  Object.keys(tree).forEach(key => {
     result[key] = groupDependencyList(tree[key], cwd, bindingPrefix);
   });
 
@@ -234,14 +234,14 @@ function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
    * @param {Array} missing list of missing paths to group
    * @returns {Function} function which group the dependencies
    */
-  const byPathType = R.groupBy((item) => {
+  const byPathType = R.groupBy(item => {
     if (item.startsWith(`${bindingPrefix}/`) || item.startsWith(`${DEFAULT_BINDINGS_PREFIX}/`)) return 'bits';
     return item.startsWith('.') ? 'files' : 'packages';
   });
   const groups = Object.keys(missing).map(key =>
     Object.assign({ originFile: processPath(key, {}, cwd) }, byPathType(missing[key], bindingPrefix))
   );
-  groups.forEach((group) => {
+  groups.forEach(group => {
     if (group.packages) group.packages = group.packages.map(resolvePackageNameByPath);
   });
   // This is a hack to solve problems that madge has with packages for type script files
@@ -249,10 +249,10 @@ function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
   const foundPackages = {};
   const packageJson = PackageJson.findPackage(cwd);
 
-  groups.forEach((group) => {
+  groups.forEach(group => {
     const missingPackages = [];
     if (group.packages) {
-      group.packages.forEach((packageName) => {
+      group.packages.forEach(packageName => {
         // Don't add the same package twice
         if (R.contains(packageName, missingPackages)) return;
         const resolvedPath = resolveModulePath(packageName, cwd, consumerPath);
@@ -293,29 +293,32 @@ function updateTreeWithPathMap(tree: Tree, pathMapAbsolute: PathMapItem[], baseD
     const mainFilePathMap = pathMap.find(file => file.file === filePath);
     if (!mainFilePathMap) throw new Error(`updateTreeWithPathMap: PathMap is missing for ${filePath}`);
     // a file might have a cycle dependency with itself, remove it from the dependencies.
-    const files: FileObject[] = treeFiles.filter(dependency => dependency !== filePath).map((dependency: string) => {
-      const dependencyPathMap = mainFilePathMap.dependencies.find(file => file.resolvedDep === dependency);
-      if (!dependencyPathMap) throw new Error(`updateTreeWithPathMap: dependencyPathMap is missing for ${dependency}`);
-      const fileObject: FileObject = {
-        file: dependency,
-        importSource: dependencyPathMap.importSource,
-        isCustomResolveUsed: dependencyPathMap.isCustomResolveUsed
-      };
-      if (dependencyPathMap.linkFile) {
-        fileObject.isLink = true;
-        fileObject.linkDependencies = dependencyPathMap.realDependencies;
+    const files: FileObject[] = treeFiles
+      .filter(dependency => dependency !== filePath)
+      .map((dependency: string) => {
+        const dependencyPathMap = mainFilePathMap.dependencies.find(file => file.resolvedDep === dependency);
+        if (!dependencyPathMap)
+          throw new Error(`updateTreeWithPathMap: dependencyPathMap is missing for ${dependency}`);
+        const fileObject: FileObject = {
+          file: dependency,
+          importSource: dependencyPathMap.importSource,
+          isCustomResolveUsed: dependencyPathMap.isCustomResolveUsed
+        };
+        if (dependencyPathMap.linkFile) {
+          fileObject.isLink = true;
+          fileObject.linkDependencies = dependencyPathMap.realDependencies;
+          return fileObject;
+        }
+        if (dependencyPathMap.importSpecifiers && dependencyPathMap.importSpecifiers.length) {
+          const depImportSpecifiers = dependencyPathMap.importSpecifiers.map(importSpecifier => {
+            return {
+              mainFile: importSpecifier
+            };
+          });
+          fileObject.importSpecifiers = depImportSpecifiers;
+        }
         return fileObject;
-      }
-      if (dependencyPathMap.importSpecifiers && dependencyPathMap.importSpecifiers.length) {
-        const depImportSpecifiers = dependencyPathMap.importSpecifiers.map((importSpecifier) => {
-          return {
-            mainFile: importSpecifier
-          };
-        });
-        fileObject.importSpecifiers = depImportSpecifiers;
-      }
-      return fileObject;
-    });
+      });
     tree[filePath].files = files; // eslint-disable-line no-param-reassign
   });
 }
@@ -323,16 +326,19 @@ function updateTreeWithPathMap(tree: Tree, pathMapAbsolute: PathMapItem[], baseD
 /**
  * config aliases are passed later on to webpack-enhancer and it expects them to have the full path
  */
-function getResolveConfigAbsolute(consumerPath: string, resolveConfig: ResolveModulesConfig | null | undefined): ResolveModulesConfig | null | undefined {
+function getResolveConfigAbsolute(
+  consumerPath: string,
+  resolveConfig: ResolveModulesConfig | null | undefined
+): ResolveModulesConfig | null | undefined {
   if (!resolveConfig) return resolveConfig;
   const resolveConfigAbsolute = R.clone(resolveConfig);
   if (resolveConfig.modulesDirectories) {
-    resolveConfigAbsolute.modulesDirectories = resolveConfig.modulesDirectories.map((moduleDirectory) => {
+    resolveConfigAbsolute.modulesDirectories = resolveConfig.modulesDirectories.map(moduleDirectory => {
       return path.isAbsolute(moduleDirectory) ? moduleDirectory : path.join(consumerPath, moduleDirectory);
     });
   }
   if (resolveConfigAbsolute.aliases) {
-    Object.keys(resolveConfigAbsolute.aliases).forEach((alias) => {
+    Object.keys(resolveConfigAbsolute.aliases).forEach(alias => {
       if (!path.isAbsolute(resolveConfigAbsolute.aliases[alias])) {
         resolveConfigAbsolute.aliases[alias] = path.join(consumerPath, resolveConfigAbsolute.aliases[alias]);
       }
@@ -344,9 +350,9 @@ function getResolveConfigAbsolute(consumerPath: string, resolveConfig: ResolveMo
 function mergeManuallyFoundPackagesToTree(foundPackages, groups, tree: Tree) {
   if (R.isEmpty(foundPackages)) return;
   // Merge manually found packages (by groupMissing()) with the packages found by Madge (generate-tree-madge)
-  Object.keys(foundPackages).forEach((pkg) => {
+  Object.keys(foundPackages).forEach(pkg => {
     // locate package in groups(contains missing)
-    groups.forEach((fileDep) => {
+    groups.forEach(fileDep => {
       if (fileDep.packages && fileDep.packages.includes(pkg)) {
         fileDep.packages = fileDep.packages.filter(packageName => packageName !== pkg);
         lset(tree[fileDep.originFile], ['packages', pkg], foundPackages[pkg]);
@@ -357,7 +363,7 @@ function mergeManuallyFoundPackagesToTree(foundPackages, groups, tree: Tree) {
 
 function mergeMissingToTree(missingGroups, tree: Tree) {
   if (R.isEmpty(missingGroups)) return;
-  missingGroups.forEach((missing) => {
+  missingGroups.forEach(missing => {
     const missingCloned = R.clone(missing);
     delete missingCloned.originFile;
     if (tree[missing.originFile]) tree[missing.originFile].missing = missingCloned;
@@ -367,7 +373,7 @@ function mergeMissingToTree(missingGroups, tree: Tree) {
 
 function mergeErrorsToTree(baseDir, errors, tree: Tree) {
   if (R.isEmpty(errors)) return;
-  Object.keys(errors).forEach((file) => {
+  Object.keys(errors).forEach(file => {
     if (tree[file]) tree[file].error = errors[file];
     else tree[file] = { error: errors[file] };
   });

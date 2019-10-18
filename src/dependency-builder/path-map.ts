@@ -33,7 +33,7 @@ export function convertPathMapToRelativePaths(pathMap: PathMapItem[], baseDir: s
   return pathMap.map((file: PathMapItem) => {
     const newFile = R.clone(file);
     newFile.file = processPath(file.file, pathCache, baseDir);
-    newFile.dependencies = file.dependencies.map((dependency) => {
+    newFile.dependencies = file.dependencies.map(dependency => {
       const newDependency = R.clone(dependency);
       newDependency.resolvedDep = processPath(dependency.resolvedDep, pathCache, baseDir);
       return newDependency;
@@ -76,7 +76,7 @@ function findTheRealDependency(
 
   while (!visitedFiles.includes(currentPathMap.file)) {
     visitedFiles.push(currentPathMap.file);
-    const currentRealDep: PathMapDependency | null | undefined = currentPathMap.dependencies.find((dep) => {
+    const currentRealDep: PathMapDependency | null | undefined = currentPathMap.dependencies.find(dep => {
       if (!dep.importSpecifiers) return false;
       return dep.importSpecifiers.find(depSpecifier => depSpecifier.name === specifier.name && depSpecifier.exported);
     });
@@ -114,7 +114,10 @@ eventually, the last file imports it from one of the files that were visited alr
 /**
  * if a dependency file is in fact a link file, get its real dependencies.
  */
-function getDependenciesFromLinkFileIfExists(dependency: PathMapDependency, pathMap: PathMapItem[]): LinkFile[] | null | undefined {
+function getDependenciesFromLinkFileIfExists(
+  dependency: PathMapDependency,
+  pathMap: PathMapItem[]
+): LinkFile[] | null | undefined {
   const dependencyPathMap: PathMapItem | null | undefined = pathMap.find(file => file.file === dependency.resolvedDep);
   if (
     !dependencyPathMap ||

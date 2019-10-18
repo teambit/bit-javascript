@@ -89,7 +89,7 @@ export function processPath(absPath, cache, baseDir) {
  */
 function convertTreePaths(depTree, pathCache, baseDir) {
   const tree = {};
-  Object.keys(depTree).forEach((file) => {
+  Object.keys(depTree).forEach(file => {
     tree[processPath(file, pathCache, baseDir)] = depTree[file].map(d => processPath(d, pathCache, baseDir));
   });
 
@@ -110,7 +110,7 @@ export default function generateTree(files = [], config) {
   const pathMap = [];
   const errors = {};
 
-  files.forEach((file) => {
+  files.forEach(file => {
     if (depTree[file]) {
       return;
     }
@@ -153,7 +153,7 @@ export default function generateTree(files = [], config) {
   let tree = convertTreePaths(depTree, pathCache, config.baseDir);
 
   // rename errors keys from absolute paths to relative paths
-  Object.keys(errors).forEach((file) => {
+  Object.keys(errors).forEach(file => {
     const relativeFile = processPath(file, pathCache, config.baseDir);
     if (relativeFile !== file) {
       errors[relativeFile] = errors[file];
@@ -161,11 +161,11 @@ export default function generateTree(files = [], config) {
     }
   });
 
-  Object.keys(npmPaths).forEach((npmKey) => {
+  Object.keys(npmPaths).forEach(npmKey => {
     const id = processPath(npmKey, pathCache, config.baseDir);
     // a file might not be in the tree if it has errors or errors found with its parents
     if (!tree[id]) return;
-    npmPaths[npmKey].forEach((npmPath) => {
+    npmPaths[npmKey].forEach(npmPath => {
       tree[id].push(processPath(npmPath, pathCache, config.baseDir));
     });
   });
