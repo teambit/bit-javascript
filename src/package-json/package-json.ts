@@ -183,8 +183,8 @@ export default class PackageJson {
   static findPath(dir) {
     const parentsArr = parents(dir);
     let i;
+    // eslint-disable-next-line
     for (i = 0; i < parentsArr.length; i++) {
-      // eslint-disable-line
       const config = `${parentsArr[i]}/package.json`;
       try {
         if (fs.lstatSync(config).isFile()) {

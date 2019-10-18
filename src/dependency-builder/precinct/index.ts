@@ -134,10 +134,10 @@ function precinct(content, options) {
 }
 
 function assign(o1, o2) {
+  // eslint-disable-next-line
   for (const key in o2) {
-    // eslint-disable-line
+    // eslint-disable-next-line
     if (o2.hasOwnProperty(key)) {
-      // eslint-disable-line
       o1[key] = o2[key];
     }
   }

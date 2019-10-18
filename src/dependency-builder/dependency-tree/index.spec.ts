@@ -221,9 +221,8 @@ describe('dependencyTree', function() {
     const filename = `${directory}/b.js`;
 
     const tree = dependencyTree({ filename, directory });
-
+    // eslint-disable-next-line
     for (const node in tree.nodes) {
-      // eslint-disable-line
       assert(node.indexOf(process.cwd()) !== -1);
     }
   });
@@ -263,7 +262,7 @@ describe('dependencyTree', function() {
         const filename = path.normalize(`${directory}/a.js`);
         const nonExistent = [];
 
-        const tree = dependencyTree({ filename, directory, nonExistent });
+        dependencyTree({ filename, directory, nonExistent });
 
         assert.equal(Object.keys(nonExistent).length, 1);
         assert.equal(nonExistent[filename][0], './notReal');
@@ -283,7 +282,7 @@ describe('dependencyTree', function() {
         const filename = `${directory}/a.js`;
         const nonExistent = [];
 
-        const tree = dependencyTree({ filename, directory, nonExistent });
+        dependencyTree({ filename, directory, nonExistent });
 
         assert.equal(nonExistent.length, 0);
       });
@@ -303,7 +302,7 @@ describe('dependencyTree', function() {
         const filename = path.normalize(`${directory}/a.js`);
         const nonExistent = [];
 
-        const tree = dependencyTree({ filename, directory, nonExistent });
+        dependencyTree({ filename, directory, nonExistent });
 
         assert.equal(Object.keys(nonExistent).length, 1);
         assert.equal(nonExistent[path.normalize(`${directory}/c.js`)][0], './notRealMan');
@@ -324,7 +323,7 @@ describe('dependencyTree', function() {
         const filename = path.normalize(`${directory}/a.js`);
         const nonExistent = [];
 
-        const tree = dependencyTree({ filename, directory, nonExistent });
+        dependencyTree({ filename, directory, nonExistent });
 
         assert.equal(Object.keys(nonExistent).length, 2);
         assert.equal(nonExistent[filename][0], './notRealMan');
@@ -354,8 +353,7 @@ describe('dependencyTree', function() {
 
     it('throws if the root is missing', () => {
       assert.throws(() => {
-        // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
-        dependencyTree({ filename });
+        dependencyTree({ filename: undefined });
       });
     });
 
@@ -364,7 +362,7 @@ describe('dependencyTree', function() {
         const directory = `${fixtures}/onlyRealDeps`;
         const filename = `${directory}/a.js`;
 
-        const tree = dependencyTree({
+        dependencyTree({
           filename,
           directory,
           filter: 'foobar'
@@ -377,7 +375,7 @@ describe('dependencyTree', function() {
         const directory = `${fixtures}/onlyRealDeps`;
         const filename = `${directory}/a.js`;
 
-        const tree = dependencyTree({
+        dependencyTree({
           filename,
           root: directory
         });
@@ -605,7 +603,6 @@ describe('dependencyTree', function() {
       });
 
       const filename = path.resolve(process.cwd(), 'root/a.js');
-      const aliasedFile = path.resolve(process.cwd(), 'root/lodizzle.js');
       assert(tree[filename].includes(path.normalize('root/lodizzle.js')));
     });
 
@@ -617,7 +614,6 @@ describe('dependencyTree', function() {
       });
 
       const filename = path.resolve(process.cwd(), 'root/b.js');
-      const aliasedFile = path.resolve(process.cwd(), 'root/lodizzle.js');
       assert.ok(tree[filename].includes(path.normalize('root/lodizzle.js')));
     });
   });

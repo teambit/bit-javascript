@@ -259,11 +259,12 @@ function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
         if (R.contains(packageName, missingPackages)) return;
         const resolvedPath = resolveModulePath(packageName, cwd, consumerPath);
         if (!resolvedPath) {
-          return missingPackages.push(packageName);
+          missingPackages.push(packageName);
+          return;
         }
         const packageWithVersion = resolveNodePackage(cwd, resolvedPath);
 
-        return packageWithVersion
+        packageWithVersion
           ? Object.assign(foundPackages, packageWithVersion)
           : missingPackages.push(packageWithVersion);
       });
