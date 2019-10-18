@@ -69,14 +69,14 @@ function findTheRealDependency(
   allPathMapItems: PathMapItem[],
   firstPathMap: PathMapItem,
   specifier: Specifier
-): ?PathMapDependency {
+): PathMapDependency | null | undefined {
   let currentPathMap: PathMapItem = firstPathMap;
-  let lastRealDep: ?PathMapDependency;
+  let lastRealDep: PathMapDependency | null | undefined;
   const visitedFiles: string[] = [];
 
   while (!visitedFiles.includes(currentPathMap.file)) {
     visitedFiles.push(currentPathMap.file);
-    const currentRealDep: ?PathMapDependency = currentPathMap.dependencies.find((dep) => {
+    const currentRealDep: PathMapDependency | null | undefined = currentPathMap.dependencies.find((dep) => {
       if (!dep.importSpecifiers) return false;
       return dep.importSpecifiers.find(depSpecifier => depSpecifier.name === specifier.name && depSpecifier.exported);
     });
@@ -114,8 +114,8 @@ eventually, the last file imports it from one of the files that were visited alr
 /**
  * if a dependency file is in fact a link file, get its real dependencies.
  */
-function getDependenciesFromLinkFileIfExists(dependency: PathMapDependency, pathMap: PathMapItem[]): ?(LinkFile[]) {
-  const dependencyPathMap: ?PathMapItem = pathMap.find(file => file.file === dependency.resolvedDep);
+function getDependenciesFromLinkFileIfExists(dependency: PathMapDependency, pathMap: PathMapItem[]): LinkFile[] | null | undefined {
+  const dependencyPathMap: PathMapItem | null | undefined = pathMap.find(file => file.file === dependency.resolvedDep);
   if (
     !dependencyPathMap ||
     !dependencyPathMap.dependencies.length ||

@@ -5,14 +5,14 @@ let _loader;
 
 type Loader = {
   on: () => Loader,
-  off: () => ?Loader,
-  start: (text: ?string) => ?Loader,
-  stop: () => ?Loader,
-  setText: (string) => ?Loader,
-  get: () => ?Loader
+  off: () => Loader | null,
+  start: (text: string | null | undefined) => Loader | null,
+  stop: () => Loader | null,
+  setText: (string) => Loader | null,
+  get: () => Loader | null
 }
 
-const start = (text: ?string): ?Loader => {
+const start = (text: string | null | undefined): Loader | null | undefined => {
   if (_loader) {
     if (text) _loader.text = text;
     _loader.start();
@@ -21,14 +21,14 @@ const start = (text: ?string): ?Loader => {
   return _loader;
 };
 
-const setText = (text: string): ?Loader => {
+const setText = (text: string): Loader | null | undefined => {
   if (_loader) _loader.text = text;
   return _loader;
 };
 
-const get = (): ?Loader => _loader;
+const get = (): Loader | null | undefined => _loader;
 
-const stop = (): ?Loader => {
+const stop = (): Loader | null | undefined => {
   if (_loader) _loader.stop();
   return _loader;
 };
@@ -38,7 +38,7 @@ const on = (): Loader => {
   return _loader;
 };
 
-const off = (): ?Loader => {
+const off = (): Loader | null | undefined => {
   stop();
   _loader = null;
   return _loader;

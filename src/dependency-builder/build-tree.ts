@@ -323,7 +323,7 @@ function updateTreeWithPathMap(tree: Tree, pathMapAbsolute: PathMapItem[], baseD
 /**
  * config aliases are passed later on to webpack-enhancer and it expects them to have the full path
  */
-function getResolveConfigAbsolute(consumerPath: string, resolveConfig: ?ResolveModulesConfig): ?ResolveModulesConfig {
+function getResolveConfigAbsolute(consumerPath: string, resolveConfig: ResolveModulesConfig | null | undefined): ResolveModulesConfig | null | undefined {
   if (!resolveConfig) return resolveConfig;
   const resolveConfigAbsolute = R.clone(resolveConfig);
   if (resolveConfig.modulesDirectories) {

@@ -251,7 +251,7 @@ export default class PackageJson {
     rootDir: string,
     componentsDefaultDirectory: string,
     dependenciesDirectory: string,
-    customImportPath: ?string
+    customImportPath: string | null | undefined
   ) {
     const pkg = (await PackageJson.getPackageJson(rootDir)) || {};
     const workSpaces = pkg.workspaces || [];
