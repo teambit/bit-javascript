@@ -7,18 +7,27 @@ import getModuleType from 'module-definition';
 import Walker from 'node-source-walk';
 import detectiveAmd from 'detective-amd';
 import detectiveStylus from 'detective-stylus';
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 import detectiveEs6 from '../detectives/detective-es6';
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 import detectiveLess from '../detectives/detective-less';
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 import detectiveSass from '../detectives/detective-sass';
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 import detectiveScss from '../detectives/detective-scss';
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 import detectiveCss from '../detectives/detective-css';
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 import detectiveTypeScript from '../detectives/detective-typescript';
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 import detectiveStylable from '../detectives/detective-stylable';
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 import detectiveVue from '../detectives/detective-vue';
 import { SUPPORTED_EXTENSIONS } from '../../constants';
 
 const debug = require('debug')('precinct');
 
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const natives = process.binding('natives');
 
 /**
@@ -50,9 +59,11 @@ function precinct(content, options) {
     try {
       // Parse once and distribute the AST to all detectives
       ast = walker.parse(content);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       precinct.ast = ast;
     } catch (e) {
       // In case a previous call had it populated
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       precinct.ast = null;
       debug('could not parse content: %s', e.message);
       throw e;
@@ -62,6 +73,7 @@ function precinct(content, options) {
     ast = content;
 
     if (typeof content === 'object') {
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       precinct.ast = content;
     }
   }
@@ -114,6 +126,7 @@ function precinct(content, options) {
 
   // For non-JS files that we don't parse
   if (theDetective && theDetective.ast) {
+    // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
     precinct.ast = theDetective.ast;
   }
 

@@ -9,6 +9,7 @@ describe('path-map', () => {
       expect(results).to.have.lengthOf(0);
     });
     it('should throw TypeError for a non array input', () => {
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       expect(() => getPathMapWithLinkFilesData()).to.throw(TypeError);
     });
     it('should return the same pathMap when there are no link-files involved', () => {

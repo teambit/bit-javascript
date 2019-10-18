@@ -1,4 +1,6 @@
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const assert = require('assert');
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const detective = require('./');
 
 describe('detective-sass', function() {
@@ -39,8 +41,11 @@ describe('detective-sass', function() {
 
   describe('sass', function() {
     it('returns the dependencies of the given .sass file content', function() {
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import _foo', ['_foo']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import        _foo', ['_foo']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import reset', ['reset']);
     });
   });

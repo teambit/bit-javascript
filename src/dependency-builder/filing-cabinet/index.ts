@@ -16,6 +16,7 @@ import webpackResolve from 'enhanced-resolve';
 import isRelative from 'is-relative-path';
 import objectAssign from 'object-assign';
 import { isRelativeImport } from '../../utils';
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 import vueLookUp from '../lookups/vue-lookup';
 
 const debug = require('debug')('cabinet');
@@ -255,11 +256,15 @@ function tsLookup(options: Options) {
 
 function resolveNonRelativePath(dependency, filename, directory, resolveConfig) {
   const webpackResolveConfig = {};
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   if (resolveConfig.modulesDirectories) webpackResolveConfig.modules = resolveConfig.modulesDirectories;
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   if (resolveConfig.aliases) webpackResolveConfig.alias = resolveConfig.aliases;
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   webpackResolveConfig.extensions = resolveExtensions;
   // a resolve module might point to an imported component via the package name, in which case
   // the package name is a symlink to the imported component. we want it to be resolved as a pkg
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   webpackResolveConfig.symlinks = false;
   return resolveWebpack(dependency, filename, directory, webpackResolveConfig);
 }

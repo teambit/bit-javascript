@@ -1,4 +1,6 @@
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const fs = require('fs');
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const path = require('path');
 const compiler = require('vue-template-compiler');
 

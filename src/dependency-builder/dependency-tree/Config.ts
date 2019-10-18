@@ -2,9 +2,12 @@
  * this file had been forked from https://github.com/dependents/node-dependency-tree
  */
 
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const path = require('path');
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const debug = require('debug')('tree');
 
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 function Config(options) {
   this.filename = options.filename;
   this.directory = options.directory || options.root;

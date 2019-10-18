@@ -2,10 +2,14 @@
  * this file had been forked from https://github.com/dependents/node-dependency-tree
  */
 
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const fs = require('fs');
 const precinct = require('../precinct');
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const cabinet = require('../filing-cabinet');
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const debug = require('debug')('tree');
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const Config = require('./Config');
 
 /**
@@ -86,6 +90,7 @@ module.exports._getDependencies = function(config) {
   const pathMapFile = { file: config.filename };
 
   dependencies.forEach(dependency => processDependency(dependency));
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   pathMapFile.dependencies = pathMapDependencies;
   config.pathMap.push(pathMapFile);
   return resolvedDependencies;
@@ -106,6 +111,7 @@ module.exports._getDependencies = function(config) {
     };
     if (!isDependenciesArray && dependenciesRaw[dependency].isScript !== undefined) {
       // used for vue
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       cabinetParams.isScript = dependenciesRaw[dependency].isScript;
     }
     let result;
@@ -133,9 +139,12 @@ module.exports._getDependencies = function(config) {
     }
     const pathMap = { importSource: dependency, resolvedDep: result };
     if (!isDependenciesArray && dependenciesRaw[dependency].importSpecifiers) {
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       pathMap.importSpecifiers = dependenciesRaw[dependency].importSpecifiers;
     }
+    // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
     if (cabinetParams.wasCustomResolveUsed) {
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       pathMap.isCustomResolveUsed = true;
     }
 

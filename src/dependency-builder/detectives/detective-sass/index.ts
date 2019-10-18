@@ -1,5 +1,6 @@
 // forked and changed from https://github.com/dependents/node-detective-sass
 
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 import detectiveCssAndPreprocessors from '../detective-css-and-preprocessors';
 
 /**
@@ -10,6 +11,7 @@ import detectiveCssAndPreprocessors from '../detective-css-and-preprocessors';
  */
 module.exports = function detective(fileContent) {
   const detectiveResult = detectiveCssAndPreprocessors(fileContent, 'sass');
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   detective.ast = detectiveCssAndPreprocessors.ast;
   return detectiveResult;
 };

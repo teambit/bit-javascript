@@ -53,6 +53,7 @@ export function resolveNodePackage(cwd: string, packageFullPath: string): Record
   // We are doing this, because the package.json insisde the package dir contain exact version
   // And the component/consumer package.json might contain semver like ^ or ~
   // We want to have this semver as dependency and not the exact version, otherwise it will be considered as modified all the time
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   const packageJsonInfo = PackageJson.findPackage(cwd);
   if (packageJsonInfo) {
     // The +1 is for the / after the node_modules, we didn't enter it into the NODE_MODULES const because it makes problems on windows
@@ -247,6 +248,7 @@ function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
   // This is a hack to solve problems that madge has with packages for type script files
   // It see them as missing even if they are exists
   const foundPackages = {};
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   const packageJson = PackageJson.findPackage(cwd);
 
   groups.forEach(group => {
@@ -268,6 +270,7 @@ function groupMissing(missing, cwd, consumerPath, bindingPrefix) {
     }
     if (packageJson) {
       const result = findPackagesInPackageJson(packageJson, missingPackages);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       groups.packages = result.missingPackages;
       Object.assign(foundPackages, result.foundPackages);
     }
@@ -294,7 +297,9 @@ function updateTreeWithPathMap(tree: Tree, pathMapAbsolute: PathMapItem[], baseD
     if (!mainFilePathMap) throw new Error(`updateTreeWithPathMap: PathMap is missing for ${filePath}`);
     // a file might have a cycle dependency with itself, remove it from the dependencies.
     const files: FileObject[] = treeFiles
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       .filter(dependency => dependency !== filePath)
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       .map((dependency: string) => {
         const dependencyPathMap = mainFilePathMap.dependencies.find(file => file.resolvedDep === dependency);
         if (!dependencyPathMap)

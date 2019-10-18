@@ -1,9 +1,12 @@
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const assert = require('assert');
 const sinon = require('sinon');
 const rewire = require('rewire');
 const mock = require('mock-fs');
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const path = require('path');
 
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const cabinet = rewire('./');
 const fixtures = `${__dirname}/../../../fixtures/filing-cabinet`;
 const mockedFiles = require(`${fixtures}/mockedJSFiles`);

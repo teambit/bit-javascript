@@ -14,6 +14,7 @@ const getDependenciesCommand: Command = {
   description: 'get dependencies list of a file',
   action: (baseDir, file) => getDependenciesAction(baseDir, file, DEFAULT_BINDINGS_PREFIX, resolveConfig),
   report,
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   loaderText: 'Finding dependencies',
   loader: true
 };

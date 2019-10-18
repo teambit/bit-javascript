@@ -10,6 +10,7 @@ function composePath(componentRootFolder: string) {
   return path.join(componentRootFolder, PACKAGE_JSON);
 }
 function convertComponentsIdToValidPackageName(registryPrefix: string, id: string): Record<string, any> {
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   return `${registryPrefix}/${id.replace(/\//g, '.')}`;
 }
 function convertComponentsToValidPackageNames(
@@ -20,6 +21,7 @@ function convertComponentsToValidPackageNames(
   if (R.isEmpty(bitDependencies) || R.isNil(bitDependencies)) return obj;
   Object.keys(bitDependencies).forEach(key => {
     const name = convertComponentsIdToValidPackageName(registryPrefix, key);
+    // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
     obj[name] = bitDependencies[key];
   });
   return obj;
@@ -102,6 +104,7 @@ export default class PackageJson {
     };
 
     R.forEach(addToResult, PackageJsonPropsNames);
+    // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
     if (this.workspaces) result.private = true;
     return result;
   }
@@ -127,6 +130,7 @@ export default class PackageJson {
     );
   }
 
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   static hasExisting(componentRootFolder: string, throws? = false): boolean {
     const packageJsonPath = composePath(componentRootFolder);
     const exists = fs.pathExistsSync(packageJsonPath);
@@ -145,6 +149,7 @@ export default class PackageJson {
   }
 
   static create(componentRootFolder: string): PackageJson {
+    // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
     return new PackageJson(componentRootFolder, {});
   }
 
@@ -153,6 +158,7 @@ export default class PackageJson {
   }
 
   static fromPlainObject(componentRootFolder: string, object: Record<string, any>) {
+    // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
     return new PackageJson(componentRootFolder, object);
   }
 
@@ -234,6 +240,7 @@ export default class PackageJson {
    * Also, in case there is no package.json file in this project, it generates a new one with only the 'dependencies'
    * attribute. Nothing more, nothing less.
    */
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   static async addComponentsIntoExistingPackageJson(rootDir: string, components: Array, registryPrefix: string) {
     const packageJson = (await PackageJson.getPackageJson(rootDir)) || { dependencies: {} };
     packageJson.dependencies = Object.assign(

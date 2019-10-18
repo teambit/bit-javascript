@@ -1,4 +1,6 @@
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const assert = require('assert');
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const detective = require('./');
 
 describe('detective-css', function() {
@@ -40,15 +42,25 @@ describe('detective-css', function() {
 
   describe('css', function() {
     it('returns the dependencies of the given .css file content', function() {
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "_foo.css";', ['_foo.css']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import          "_foo.css";', ['_foo.css']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "_foo";', ['_foo']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('body { color: blue; } @import "_foo";', ['_foo']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "bar";', ['bar']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "bar"; @import "foo";', ['bar', 'foo']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test("@import 'bar';", ['bar']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test("@import 'bar.css';", ['bar.css']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "_foo.css";\n@import "_bar.css";', ['_foo.css', '_bar.css']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "_foo.css";\n@import "_bar.css";\n@import "_baz";\n@import "_buttons";', [
         '_foo.css',
         '_bar.css',
@@ -58,22 +70,27 @@ describe('detective-css', function() {
     });
 
     it('handles simple import', function() {
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "_foo.css"', ['_foo.css']);
     });
 
     it('handles comma-separated imports (#2)', function() {
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "_foo.css", "bar";', ['_foo.css', 'bar']);
     });
 
     it('allows imports with no semicolon', function() {
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "_foo.css"\n@import "_bar.css"', ['_foo.css', '_bar.css']);
     });
 
     it('not allow https and http', function() {
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import url("https://fonts.googleapis.com/css?family=Lato:100,300,400,700,900");"', []);
     });
 
     it('not allow ftp', function() {
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import url("ftp://fonts.googleapis.com/css?family=Lato:100,300,400,700,900");"', []);
     });
   });

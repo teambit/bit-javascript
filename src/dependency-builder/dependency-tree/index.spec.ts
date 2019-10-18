@@ -353,6 +353,7 @@ describe('dependencyTree', function() {
 
     it('throws if the root is missing', () => {
       assert.throws(() => {
+        // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
         dependencyTree({ filename });
       });
     });
@@ -825,15 +826,18 @@ describe('dependencyTree', function() {
         visited: {}
       };
 
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       config.filename = fooFile;
       dependencyTree(config);
       expect(nonExistent[fooFile]).to.deep.equal(['non-exist-foo-pkg']);
 
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       config.filename = barFile;
       dependencyTree(config);
       expect(nonExistent[fooFile]).to.deep.equal(['non-exist-foo-pkg']);
       expect(nonExistent[barFile]).to.deep.equal(['non-exist-bar-pkg']);
 
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       config.filename = bazFile;
       dependencyTree(config);
       expect(nonExistent[fooFile]).to.deep.equal(['non-exist-foo-pkg']);
@@ -858,9 +862,11 @@ describe('dependencyTree', function() {
         directory
       };
 
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       config.filename = baseFile;
       dependencyTree(config);
 
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       config.filename = indexFile;
       const dependencies = dependencyTree(config);
       expect(dependencies).to.be.ok;

@@ -43,6 +43,8 @@ export type DependenciesResults = {
   unidentifiedPackages?: string[],
   bits?: Record<string, any>,
   error?: Error, // error.code is either PARSING_ERROR or RESOLVE_ERROR
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   missing?: { [MissingType]: string[] }
 };
 
@@ -52,6 +54,8 @@ export type Tree = {
 
 export type ResolveModulesConfig = {
   modulesDirectories: string[],
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   aliases: { [string]: string } // e.g. { '@': 'src' }
 };
 

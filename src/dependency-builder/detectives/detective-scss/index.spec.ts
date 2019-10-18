@@ -1,4 +1,6 @@
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const assert = require('assert');
+// @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
 const detective = require('./');
 
 describe('detective-scss', function() {
@@ -40,29 +42,42 @@ describe('detective-scss', function() {
 
   describe('scss', function() {
     it('returns the dependencies of the given .scss file content', function() {
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "_foo.scss";', ['_foo.scss']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import          "_foo.scss";', ['_foo.scss']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "_foo";', ['_foo']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('body { color: blue; } @import "_foo";', ['_foo']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "bar";', ['bar']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "bar"; @import "foo";', ['bar', 'foo']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test("@import 'bar';", ['bar']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test("@import 'bar.scss';", ['bar.scss']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "_foo.scss";\n@import "_bar.scss";', ['_foo.scss', '_bar.scss']);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "_foo.scss";\n@import "_bar.scss";\n@import "_baz";\n@import "_buttons";', [
         '_foo.scss',
         '_bar.scss',
         '_baz',
         '_buttons'
       ]);
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "_nested.scss"; body { color: blue; a { text-decoration: underline; }}', ['_nested.scss']);
     });
 
     it('handles comma-separated imports (#2)', function() {
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "_foo.scss", "bar";', ['_foo.scss', 'bar']);
     });
 
     it('allows imports with no semicolon', function() {
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       test('@import "_foo.scss"\n@import "_bar.scss"', ['_foo.scss', '_bar.scss']);
     });
   });

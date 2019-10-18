@@ -27,6 +27,7 @@ module.exports = function detective(fileContent, syntax) {
     }
   });
 
+  // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
   detective.ast = ast;
 
   csstree.walk(ast, function(node) {
@@ -34,6 +35,7 @@ module.exports = function detective(fileContent, syntax) {
       return;
     }
 
+    // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
     dependencies = dependencies.concat(extractDependencies(node, syntax));
     dependencies = clearUrlImports(dependencies);
   });

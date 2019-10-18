@@ -43,6 +43,7 @@ function start() {
 
     currentCommand.action((args, options) => {
       if (c.loader === true) loader.on();
+      // @ts-ignore AUTO-ADDED-AFTER-MIGRATION-PLEASE-FIX!
       loader.start(c.loaderText || `performing ${c.name} command`);
       c.action(args, options)
         .then(c.report)
