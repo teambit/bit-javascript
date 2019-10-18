@@ -334,11 +334,14 @@ describe('dependencyTree', function() {
 
   describe('throws', () => {
     beforeEach(() => {
+      // @ts-ignore
       this._directory = `${fixtures}/commonjs`;
+      // @ts-ignore
       this._revert = dependencyTree.__set__('traverse', () => []);
     });
 
     afterEach(() => {
+      // @ts-ignore
       this._revert();
     });
 
@@ -346,6 +349,7 @@ describe('dependencyTree', function() {
       assert.throws(() => {
         dependencyTree({
           filename: undefined,
+          // @ts-ignore
           directory: this._directory
         });
       });
@@ -385,6 +389,7 @@ describe('dependencyTree', function() {
 
   describe('on file error', () => {
     beforeEach(() => {
+      // @ts-ignore
       this._directory = `${fixtures}/commonjs`;
     });
 
@@ -392,12 +397,14 @@ describe('dependencyTree', function() {
       assert.doesNotThrow(() => {
         dependencyTree({
           filename: 'foo',
+          // @ts-ignore
           directory: this._directory
         });
       });
     });
 
     it('returns no dependencies', () => {
+      // @ts-ignore
       const tree = dependencyTree({ filename: 'foo', directory: this._directory });
       assert(!tree.length);
     });
@@ -405,6 +412,7 @@ describe('dependencyTree', function() {
 
   describe('memoization (#2)', () => {
     beforeEach(() => {
+      // @ts-ignore
       this._spy = sinon.spy(dependencyTree, '_getDependencies');
     });
 
@@ -430,6 +438,7 @@ describe('dependencyTree', function() {
       });
 
       assert.equal(Object.keys(tree[filename]).length, 2);
+      // @ts-ignore
       assert(this._spy.neverCalledWith(path.normalize(`${fixtures}/amd/b.js`)));
     });
 
@@ -463,6 +472,7 @@ describe('dependencyTree', function() {
 
     describe('es6', () => {
       beforeEach(() => {
+        // @ts-ignore
         this._directory = path.normalize(`${fixtures}/es6`);
         mockes6();
       });
@@ -470,30 +480,38 @@ describe('dependencyTree', function() {
       testTreesForFormat('es6');
 
       it('resolves files that have jsx', () => {
+        // @ts-ignore
         const filename = path.normalize(`${this._directory}/jsx.js`);
         const tree = dependencyTree({
           filename,
+          // @ts-ignore
           directory: this._directory
         });
-
+        // @ts-ignore
         assert.ok(tree[filename].includes(path.normalize(`${this._directory}/c.js`)));
       });
 
       it('resolves files with a jsx extension', () => {
+        // @ts-ignore
         const filename = path.normalize(`${this._directory}/foo.jsx`);
         const tree = dependencyTree({
           filename,
+          // @ts-ignore
           directory: this._directory
         });
+        // @ts-ignore
         assert.ok(tree[filename].includes(path.normalize(`${this._directory}/b.js`)));
       });
 
       it('resolves files that have es7', () => {
+        // @ts-ignore
         const filename = path.normalize(`${this._directory}/es7.js`);
         const tree = dependencyTree({
           filename,
+          // @ts-ignore
           directory: this._directory
         });
+        // @ts-ignore
         assert.ok(tree[filename].includes(path.normalize(`${this._directory}/c.js`)));
       });
     });
@@ -539,13 +557,17 @@ describe('dependencyTree', function() {
     beforeEach(() => {
       // Note: not mocking because webpack's resolver needs a real project with dependencies;
       // otherwise, we'd have to mock a ton of files.
+      // @ts-ignore
       this._root = path.join(__dirname, '../');
+      // @ts-ignore
       this._webpackConfig = `${this._root}/webpack.config.js`;
-
+      // @ts-ignore
       this._testResolution = name => {
         const results = dependencyTree.toList({
           filename: `${fixtures}/webpack/${name}.js`,
+          // @ts-ignore
           directory: this._root,
+          // @ts-ignore
           webpackConfig: this._webpackConfig,
           filter: filename => filename.indexOf('filing-cabinet') !== -1
         });
@@ -555,11 +577,13 @@ describe('dependencyTree', function() {
 
     it('resolves aliased modules', () => {
       this.timeout(5000);
+      // @ts-ignore
       this._testResolution('aliased');
     });
 
     it('resolves unaliased modules', () => {
       this.timeout(5000);
+      // @ts-ignore
       this._testResolution('unaliased');
     });
   });
