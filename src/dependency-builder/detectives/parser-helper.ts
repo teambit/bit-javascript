@@ -26,6 +26,14 @@ export function getDependenciesFromCallExpression(node) {
   return null;
 }
 
+export function getSpecifierValueForImportDeclaration(specifier) {
+  return {
+    isDefault: specifier.type === 'ImportDefaultSpecifier',
+    // don't use specifier.local.name. in case of import { x as y }, we need `x` (imported) not `y` (local).
+    name: specifier.imported.name
+  };
+}
+
 function getStringValue(node) {
   // using single or double quotes (', ")
   if (node.type === 'Literal' || node.type === 'StringLiteral') {
