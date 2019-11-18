@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [unreleased]
 
+## [2.1.4-dev.1] - 2019-11-18
+
 - [#2140](https://github.com/teambit/bit/issues/2140) support `import { x as y }` syntax
 
 ## [2.1.3] - 2019-10-23
