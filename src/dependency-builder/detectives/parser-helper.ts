@@ -29,8 +29,10 @@ export function getDependenciesFromCallExpression(node) {
 export function getSpecifierValueForImportDeclaration(specifier) {
   return {
     isDefault: specifier.type === 'ImportDefaultSpecifier',
-    // don't use specifier.local.name. in case of import { x as y }, we need `x` (imported) not `y` (local).
-    name: specifier.imported.name
+    // syntax of `import x from 'file'` doesn't have specifier.imported, only specifier.local
+    // syntax of `import { x as y } from 'file'`, has `x` as specifier.imported and `y` as
+    // specifier.local. we interested in `x` in this case.
+    name: specifier.imported ? specifier.imported.name : specifier.local.name
   };
 }
 
