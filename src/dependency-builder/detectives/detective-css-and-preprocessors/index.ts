@@ -45,13 +45,17 @@ module.exports = function detective(fileContent, syntax) {
 };
 
 function isImportStatement(node) {
-  if (node.type === 'Atrule' && node.name === 'import') {
+  if ((node.type === 'Atrule' && node.name === 'import') || node.type === 'Url') {
     return true;
   }
   return false;
 }
 
 function extractDependencies(importStatementNode) {
+  // handle URL functions without import, like `background-image: url('../button.png');`
+  if (importStatementNode.type === 'Url') {
+    return importStatementNode.value.value.replace(/["']/g, '');
+  }
   // handle URL import @import url("baz.css");
   if (
     importStatementNode.prelude.type === 'AtrulePrelude' &&
