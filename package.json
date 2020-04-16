@@ -70,7 +70,7 @@
     "sass-lookup": "^3.0.0",
     "stylable": "5.2.2",
     "stylus-lookup": "^3.0.2",
-    "typescript": "3.7.4",
+    "typescript": "3.8.3",
     "user-home": "^2.0.0",
     "vue-template-compiler": "^2.5.13"
   },
