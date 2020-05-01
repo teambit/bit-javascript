@@ -17,7 +17,9 @@
     "build-debug": "babel src -d dist --source-maps",
     "pre-release": "gh-release --prerelease",
     "release": "gh-release",
-    "release:circle": "gh-release -y"
+    "release:circle": "gh-release -y",
+    "snyk-protect": "snyk protect",
+    "prepare": "npm run snyk-protect"
   },
   "bin": {
     "bitjs": "bin/bitjs.js"
@@ -72,7 +74,8 @@
     "stylus-lookup": "^3.0.2",
     "typescript": "3.8.3",
     "user-home": "^2.0.0",
-    "vue-template-compiler": "^2.5.13"
+    "vue-template-compiler": "^2.5.13",
+    "snyk": "^1.316.1"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.4",
@@ -121,5 +124,6 @@
       "prettier --write",
       "git add"
     ]
-  }
+  },
+  "snyk": true
 }
