@@ -17,7 +17,9 @@
     "build-debug": "babel src -d dist --source-maps",
     "pre-release": "gh-release --prerelease",
     "release": "gh-release",
-    "release:circle": "gh-release -y"
+    "release:circle": "gh-release -y",
+    "prepare": "npm run snyk-protect",
+    "snyk-protect": "snyk-protect"
   },
   "bin": {
     "bitjs": "bin/bitjs.js"
@@ -63,7 +65,7 @@
     "object-assign": "^4.1.1",
     "ora": "^1.2.0",
     "parents": "^1.0.1",
-    "ramda": "^0.26.1",
+    "ramda": "^0.27.2",
     "regenerator-runtime": "^0.10.5",
     "resolve": "^1.5.0",
     "resolve-dependency-path": "^2.0.0",
@@ -72,7 +74,8 @@
     "stylus-lookup": "^3.0.2",
     "typescript": "3.8.3",
     "user-home": "^2.0.0",
-    "vue-template-compiler": "^2.5.13"
+    "vue-template-compiler": "^2.5.13",
+    "@snyk/protect": "latest"
   },
   "devDependencies": {
     "@babel/cli": "^7.6.4",
@@ -121,5 +124,6 @@
       "prettier --write",
       "git add"
     ]
-  }
+  },
+  "snyk": true
 }
